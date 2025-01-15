@@ -7,6 +7,7 @@ from torch.nn.parameter import Parameter
 from .DCNv2.TTOA import TTOA
 from models.layers import DTUM
 from models.model_ISNet.train_ISNet import Get_gradient_nopadding
+import sys
 
 '''
 ISNet_TTOA

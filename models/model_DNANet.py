@@ -184,6 +184,7 @@ class DNANet_DTUM(nn.Module):
     def __init__(self, num_classes, input_channels, block, num_blocks, nb_filter, deep_supervision=False):
         super(DNANet_DTUM, self).__init__()
         self.DNANet = DNANet(32, input_channels, block, num_blocks, nb_filter,deep_supervision=deep_supervision)
+        #DNANet的输出结果
         self.DTUM = DTUM(32, num_classes, num_frames=5)
         self.deep_supervision = deep_supervision
 

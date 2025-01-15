@@ -67,8 +67,9 @@ class DTUM(nn.Module):    # final version
         self.pool = nn.MaxPool3d(kernel_size=(1,2,2), stride=(1,2,2), padding=(0,0,0), return_indices=True)
         # self.pool = nn.MaxPool3d(kernel_size=(1,3,3), stride=(1,2,2), padding=(0,1,1), return_indices=True, ceil_mode=False)
         self.up = nn.Upsample(scale_factor=(1,2,2), mode='nearest')
+        #相当于作为降采样后升采样
         self.relu = nn.ReLU(inplace=True)
-
+        
         inch = in_channels
         pad = int((num_frames-1)/2)
         self.bn0 = nn.BatchNorm3d(inch)

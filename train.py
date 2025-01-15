@@ -22,7 +22,7 @@ from IRDSTDataLoader import IRDST_TrainSetLoader, IRDST_TestSetLoader
 from models.model_ISNet.train_ISNet import Get_gradientmask_nopadding, Get_gradient_nopadding
 
 from models.model_config import model_chose, run_model
-from .losses.loss_config import loss_chose
+from losses import loss_chose
 from ShootingRules import ShootingRules
 from write_results import writeNUDTMIRSDT_ROC, writeIRSeq_ROC
 
@@ -58,9 +58,9 @@ def parse_args():
     parser.add_argument('--training_rate', type=int, default=1, help='Rate of samples in training (1/n) [default: 1]')
     parser.add_argument('--saveDir',   type=str, default='./results/',
                             help='Save path [defaule: ./results/]')
-    parser.add_argument('--train',    type=int, default=0)
-    parser.add_argument('--test',     type=int, default=1)
-    parser.add_argument('--pth_path', type=str, default='./results/ResUNet_DTUM_SpatialDeepSupFalse_fullySup/ResUNet_DTUM.pth', help='Trained model path')
+    parser.add_argument('--train',    type=int, default=1)
+    parser.add_argument('--test',     type=int, default=0)
+    parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
 
     # train
     parser.add_argument('--model',     type=str, default='ResUNet_DTUM',

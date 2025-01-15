@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-from losses.loss_fullySupervised import Focal_Loss, SoftIoULoss, SoftLoULoss1, muti_bce_loss_fusion, muti_SoftLoULoss1_fusion
-from losses.loss_OHEM import MyWeightTopKLoss_Absolutly
-from losses.loss_BCETopKLoss import MyWeightBCETopKLoss
+from .loss_fullySupervised import Focal_Loss, SoftIoULoss, SoftLoULoss1, muti_bce_loss_fusion, muti_SoftLoULoss1_fusion
+from .loss_OHEM import MyWeightTopKLoss_Absolutly
+from .loss_BCETopKLoss import MyWeightBCETopKLoss
 
 
 
