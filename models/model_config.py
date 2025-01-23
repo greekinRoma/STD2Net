@@ -7,6 +7,8 @@ from models.model_alcnet import ASKCResNetFPN as ALCNet
 from models.model_alcnet import ALCNet_DTUM
 from models.model_DNANet import Res_CBAM_block
 from models.model_res_UNet import Res_block
+from models.model_STDiffTransNet.STDiffTransNet import SDiffTransNet_DTUM
+from models.model_STDiffTransNet.STDiffTransNet import SDiffTransNet
 # from models.model_ISNet.ISNet import ISNet, ISNet_woTFD, ISNet_DTUM
 from models.model_ISNet.train_ISNet import Get_gradient_nopadding
 from models.model_UIU.uiunet import UIUNET, UIUNET_DTUM
@@ -49,7 +51,10 @@ def model_chose(model, loss_func, SpatialDeepSup):
         net = UIUNET(in_ch=3, out_ch=num_classes)
     elif model == 'UIU_DTUM':
         net = UIUNET_DTUM(in_ch=3, out_ch=num_classes, deep_supervision=SpatialDeepSup)
-
+    elif model == 'STDiffTransNet_DTUM':
+        net = SDiffTransNet_DTUM()
+    elif model == 'SDiffTransNet':
+        net = SDiffTransNet()
     return net
 
 
@@ -58,10 +63,10 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
     # Old_Feat = SeqData[:,:,:-1, :,:] * 0  # interface for iteration input
     # OldFlag = 1  # 1: i
 
-    if model=='DNANet' or model=='ResUNet' or model=='ACM' or model=='ALCNet':   ## or model=='ISNet_woTFD'
+    if model=='DNANet' or model=='ResUNet' or model=='ACM' or model=='ALCNet' or model =='SDiffTransNet':   ## or model=='ISNet_woTFD'
         input = SeqData[:, :, -1, :, :].repeat(1, 3, 1, 1)
         outputs = net(input)
-    elif model=='DNANet_DTUM' or model=='ResUNet_DTUM' or model=='ALCNet_DTUM':
+    elif model=='DNANet_DTUM' or model=='ResUNet_DTUM' or model=='ALCNet_DTUM' or model=='STDiffTransNet_DTUM':
         input = SeqData.repeat(1, 3, 1, 1, 1)
         outputs = net(input, Old_Feat, OldFlag)
 

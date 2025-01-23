@@ -20,7 +20,7 @@ from MIRSDTDataLoader import TrainSetLoader, TestSetLoader
 from IRDSTDataLoader import IRDST_TrainSetLoader, IRDST_TestSetLoader
 
 from models.model_ISNet.train_ISNet import Get_gradientmask_nopadding, Get_gradient_nopadding
-
+from models.model_STDiffTransNet.STDiffTransNet import SDiffTransNet_DTUM
 from models.model_config import model_chose, run_model
 from losses import loss_chose
 from ShootingRules import ShootingRules
@@ -63,14 +63,15 @@ def parse_args():
     parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
 
     # train
-    parser.add_argument('--model',     type=str, default='ResUNet_DTUM',
+    parser.add_argument('--model',     type=str, default='SDiffTransNet',
                         help='ResUNet_DTUM, DNANet_DTUM, ACM, ALCNet, ResUNet, DNANet, ISNet, UIU')
     parser.add_argument('--loss_func', type=str, default='fullySup',
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
     parser.add_argument('--fullySupervised', default=True)
     parser.add_argument('--SpatialDeepSup',  default=False)
     parser.add_argument('--batchsize', type=int,   default=1)
-    parser.add_argument('--epochs',    type=int,   default=20)
+    parser.add_argument('--epochs',    type=int,   default=1)
+    parser.add_argument('--evalepoch',type=int, default=1)
     parser.add_argument('--lrate',     type=float, default=0.001)
     # parser.add_argument('--lrate_min', type=float, default=1e-5)
 
@@ -263,7 +264,7 @@ class Trainer(object):
                 Outputs_Max = torch.sigmoid(outputs)
                 TestOut = Outputs_Max.data.cpu().numpy()[0, 0, 0:m, 0:n]
 
-                pixelsNumBatch.append(m*n)
+                pixelsNumBatch.append(np.array(m*n))
                 if self.save_flag:
                     img = Image.fromarray(uint8(TestOut * 255))
                     folder_name = "%s%s/" % (self.test_save, txt[i].split('/')[0])
@@ -342,7 +343,7 @@ if __name__ == '__main__':
         for epoch in range(args.epochs):
             trainer.training(epoch)
 
-            if (epoch+1)%10 == 0:
+            if (epoch+1)%args.evalepoch == 0:
                 trainer.savemodel(epoch)
                 trainer.validation(epoch)
         # trainer.savemodel()

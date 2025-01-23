@@ -36,7 +36,6 @@ class Res_block(nn.Module):
 class res_UNet(nn.Module):
     def __init__(self, num_classes, input_channels, block, num_blocks, nb_filter):
         super(res_UNet, self).__init__()
-
         self.pool = nn.MaxPool2d(2, 2)
         self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
@@ -96,7 +95,8 @@ class res_UNet_DTUM(nn.Module):
     def forward(self, X_In, Old_Feat, OldFlag):
 
         FrameNum = X_In.shape[2]
-        Features = X_In[:, :, -1, :, :]           # [2,1,512,512]
+        Features = X_In[:, :, -1, :, :]
+        #最后一个特征输入到网络中
         Features = self.UNet(Features)
         Features = torch.unsqueeze(Features, 2)
 
@@ -106,10 +106,13 @@ class res_UNet_DTUM(nn.Module):
         elif OldFlag == 0 and FrameNum > 1:
             for i_fra in range(FrameNum - 1):
                 x_t = X_In[:, :, -2 - i_fra, :, :]
+                #通过索引从倒数第 2 帧开始依次向前选择帧。
                 x_t = self.UNet(x_t)
                 x_t = torch.unsqueeze(x_t, 2)
                 Features = torch.cat([x_t, Features], 2)
-
+                #输出结果凭借在一起
+            #相当于计算前四帧图像
+        #Features 代表全部的特征
         X_Out = self.DTUM(Features)
 
         Old_Feat = Features[:,:,1:,:,:]

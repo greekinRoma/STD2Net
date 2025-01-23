@@ -7,7 +7,7 @@ import math
 from ..AttentionModule.nonlocal_module import _NonLocalBlockND
 from .contrast_and_atrous import AttnContrastLayer
 class ExpansionContrastModule(nn.Module):
-    def __init__(self,in_channels,out_channels,shifts,kernel_size):
+    def __init__(self,in_channels,out_channels,shifts,kernel_size,use_nonlocal=False):
         super().__init__()
         #The hyper parameters settting
         self.convs_list=nn.ModuleList()
@@ -40,11 +40,11 @@ class ExpansionContrastModule(nn.Module):
         self.kernel8 = torch.Tensor(w8).cuda()
         self.kernels = torch.concat([self.kernel1,self.kernel2,self.kernel3,self.kernel4,self.kernel5,self.kernel6,self.kernel7,self.kernel8],dim=0)
         self.kernels = self.kernels.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1),
+        self.use_nonlocal = use_nonlocal
+        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False),
                                       nn.BatchNorm2d(self.in_channels),
                                       nn.ReLU())
-        self.avg_pool_layer = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=self.kernel_size+1,stride=self.kernel_size,padding=self.kernel_size//2)
-        self.max_pool_layer = nn.MaxPool2d(kernel_size=self.kernel_size+1,stride=self.kernel_size,padding=self.kernel_size//2)
+        self.trans_layer = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=self.kernel_size+1,stride=self.kernel_size,padding=self.kernel_size//2)
         self.query_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False)
         for _ in range(len(self.shifts)):
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False))
@@ -53,15 +53,15 @@ class ExpansionContrastModule(nn.Module):
         keys = []
         values = []
         size = w*h//(self.kernel_size*self.kernel_size)
-        key_query_cen = self.avg_pool_layer(cen)
+        key_value_cen = self.trans_layer(cen)
         for i in range(len(self.shifts)):
             value = self.value_convs[i](cen)
-            key = self.key_convs[i](key_query_cen)
+            key = self.key_convs[i](key_value_cen)
             value = torch.nn.functional.conv2d(weight=self.kernels,stride=1,padding="same",input=value,groups=self.in_channels,dilation=self.shifts[i])
             key = torch.nn.functional.conv2d(weight=self.kernels, stride=1, padding="same", input=key,groups=self.in_channels,dilation=self.shifts[i])
             keys.append(key)
             values.append(value)
-        querys = self.query_conv(key_query_cen)
+        querys = self.query_conv(key_value_cen)
         keys = torch.stack(keys,dim=2)
         values = torch.stack(values,dim=2)
         keys = torch.nn.functional.normalize(keys.view(b,self.in_channels,8*self.num_shift,size),dim=-1).transpose(-2,-1)
@@ -128,6 +128,7 @@ class ExpansionInfoModule(nn.Module):
             self.pool_layer = nn.AvgPool2d((self.kernel_size,self.kernel_size))
         else:
             self.pool_layer = nn.MaxPool2d((self.kernel_size,self.kernel_size))
+        self.pool_layer = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=self.kernel_size+1,stride=self.kernel_size,padding=self.kernel_size//2,bias=False)
         self.query_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False))
         self.value_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False)
         self.key_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False)

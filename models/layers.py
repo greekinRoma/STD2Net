@@ -102,23 +102,27 @@ class DTUM(nn.Module):    # final version
         arr[:, :, 2:, :, :] = arr[:, :, 2:, :, :] - m * 2 * n * 2
         arr[:, :, 3:, :, :] = arr[:, :, 3:, :, :] - m * 2 * n * 2
         arr[:, :, 4:, :, :] = arr[:, :, 4:, :, :] - m * 2 * n * 2
-
+        # 去掉位置
         arr_r_l = arr % 2  # right 1; left 0     [0 1; 0 1]
+        #x轴的偏离
         up_down = torch.Tensor(range(0,m)).cuda(arr.device) * n*2*2  #.transpose(0,1)
         up_down = up_down.repeat_interleave(n).reshape(m,n)
         arr1 = arr.float() - up_down.reshape([1,1,1,m,n])
+        #计算纵坐标
         arr_u_d = (arr1 >= n*2).float() * 2  # up 0; down 1  [0 0; 2 2]
+        #表示
         arr_out = arr_r_l.float() + arr_u_d   # [0 1; 2 3]
         arr_out = (arr_out - 1.5)       # [-1.5 -0.5; 0.5 1.5]
-
+        #相当于是最大值位置的编码
         return arr_out
 
 
     def forward(self, x):
 
         x = self.relu(self.bn0(x))
-
+        # x ---> (b,c,t,w,h)
         x_1 = self.relu(self.bn1_1(self.conv1_1(x)))
+        # (b,c,t,w,h) ---> (b,c,t,w,h) 进行t方向的特征提取
         xp_1, ind = self.pool(x_1)
         x_2 = self.relu(self.bn2_1(torch.abs(self.conv2_1(xp_1 * self.direction(ind)))))
         xp_2, ind = self.pool(x_2)

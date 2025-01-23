@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import Flatten
 import torch.nn.functional as F
 from .Gradient_attention.contrast_and_atrous import AttnContrastLayer
-from .CDCNs.Gradient_model import ExpansionContrastModule,ExpansionDownModule
+from .CDCNs.Gradient_model import ExpansionContrastModule,ExpansionInfoModule
 from .AttentionModule import *
 from .AttentionModule import _NonLocalBlockND
 def get_activation(activation_type):
@@ -28,7 +28,7 @@ class GFEM(nn.Module):
         spat = self.sp(inps)
         down = self.down(inps)
         down = self.ca(spat)*down
-        down = self.up(down)*self.sattn(inps)
+        down = self.up(down)
         spat = self.tra_conv_1(spat)
         down = self.tra_conv_2(down)
         out = spat + down
@@ -100,7 +100,7 @@ class Res_block(nn.Module):
         return out
 
 class SDiffTransNet(nn.Module):
-    def __init__(self,  n_channels=1, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
+    def __init__(self,  n_channels=3, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
         super().__init__()
         self.vis = vis
         self.deepsuper = deepsuper
@@ -109,17 +109,18 @@ class SDiffTransNet(nn.Module):
         self.n_classes = n_classes
         in_channels = 16  # basic channel 64
         block = Res_block
-        self.inc = self._make_layer(block, n_channels, in_channels,use_down=False)
-        self.encoder1 = self._make_layer(block, in_channels*1, in_channels*2, 1)  
-        self.encoder2 = self._make_layer(block, in_channels*2, in_channels*4, 1) 
-        self.encoder3 = self._make_layer(block, in_channels*4, in_channels*8, 1)  
-        self.encoder4 = self._make_layer(block, in_channels*8, in_channels*8, 1)  
-        self.encoder5 = self._make_layer(block, in_channels*8, in_channels*8, 1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.inc = self._make_layer(block, n_channels, in_channels)
+        self.encoder1 = self._make_layer(block, in_channels, in_channels * 2, 1)  
+        self.encoder2 = self._make_layer(block, in_channels * 2, in_channels * 4, 1) 
+        self.encoder3 = self._make_layer(block, in_channels * 4, in_channels * 8, 1)  
+        self.encoder4 = self._make_layer(block, in_channels * 8,  in_channels * 8, 1)  
+        self.encoder5 = self._make_layer(block, in_channels*8 , in_channels *8  ,1)
         # self.encoder6 = self._make_layer(block, in_channels*4 , in_channels *4  ,1)
-        self.contras1 = ExpansionContrastModule(in_channels=in_channels*1,out_channels=in_channels*1,shifts=[1,3],kernel_size=2)
-        self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,shifts=[1,3],kernel_size=2)
-        self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,shifts=[1,3],kernel_size=2)
-        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,shifts=[1,3],kernel_size=2)
+        self.contras1 = ExpansionContrastModule(in_channels=in_channels*1,out_channels=in_channels*1,kernel_size=4,shifts=[1,3])
+        self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=4,shifts=[1,3])
+        self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=4,shifts=[1,3])
+        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,kernel_size=4,shifts=[1,3])
         self.GFEM = GFEM(channels=in_channels*8)
         # self.decoder6 = nn.Sequential(nn.ConvTranspose2d(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,stride=2),CBN(in_channels*4,in_channels*4,kernel_size=1))
         self.decoder5 = UpBlock_attention(in_channels * 16, in_channels * 8, nb_Conv=2)
@@ -128,10 +129,8 @@ class SDiffTransNet(nn.Module):
         self.decoder2 = UpBlock_attention(in_channels * 4, in_channels, nb_Conv=2)
         self.decoder1 = UpBlock_attention(in_channels * 2, in_channels, nb_Conv=2)
         self.outc = nn.Conv2d(in_channels, n_classes, kernel_size=(1, 1), stride=(1, 1))
-    def _make_layer(self, block, input_channels, output_channels, num_blocks=1,use_down=True):
+    def _make_layer(self, block, input_channels, output_channels, num_blocks=1):
         layers = []
-        if use_down:
-            layers.append(ExpansionDownModule(in_channels=input_channels,out_channels=input_channels,shifts=[1],down_scale=2,use_avg=False))
         layers.append(block(input_channels, output_channels))
         for _ in range(num_blocks - 1):
             layers.append(block(output_channels, output_channels))
@@ -140,10 +139,10 @@ class SDiffTransNet(nn.Module):
     def forward(self, x):
         #encoder
         x1 = self.inc(x) 
-        x2 = self.encoder1(x1) 
-        x3 = self.encoder2(x2)  
-        x4 = self.encoder3(x3)  
-        d5 = self.encoder4(x4)
+        x2 = self.encoder1(self.pool(x1)) 
+        x3 = self.encoder2(self.pool(x2))  
+        x4 = self.encoder3(self.pool(x3))  
+        d5 = self.encoder4(self.pool(x4))  
         # Transfor_layer
         c1 = self.contras1(x1)
         c2 = self.contras2(x2)
@@ -155,4 +154,4 @@ class SDiffTransNet(nn.Module):
         d3 = self.decoder3(d4, c3, x3)
         d2 = self.decoder2(d3, c2, x2)
         out = self.outc(self.decoder1(d2, c1, x1))
-        return out.sigmoid()
+        return out
