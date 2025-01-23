@@ -9,15 +9,17 @@ from losses import loss_chose
 from ShootingRules import ShootingRules
 import os
 import time
-
+from logger.logger import Logger
 class MyExp():
     def __init__(self,args,train_dataset,val_dataset):
         self.args = args
         # GPU
         self.device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+        # Logger
+        self.logger = self.resetloger()
         # path 
         self.save_dir = self.args.saveDir
-        self.log_dir = self.args.logsDir
+        self.log_dir = os.path.join(self.args.logsDir,self.args.model)
         # model
         self.loss_func = self.args.loss_func
         self.training_rate = self.args.training_rate
@@ -78,3 +80,5 @@ class MyExp():
         return train_loader,val_loader
     def resetloader(self):
         self.train_loader,self.val_loader = self.setloader()
+    def resetloger(self):
+        return Logger(self.log_dir)
