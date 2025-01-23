@@ -47,8 +47,8 @@ class MyExp():
         ########### save ############
         self.ModelPath, self.ParameterPath, self.SavePath = self.generate_savepath( 0, 0)
         self.test_save = self.SavePath[0:-1] + '_visualization/'
-        self.writeflag = 1
-        self.save_flag = 1
+        self.writeflag = 0
+        self.save_flag = 0
         if self.save_flag == 1 and not os.path.exists(self.test_save):
             os.mkdir(self.test_save)
     def generate_savepath(self,epoch, epoch_loss):

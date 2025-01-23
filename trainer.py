@@ -1,7 +1,6 @@
 from models.model_config import run_model
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 import matplotlib.pyplot as plt
 from numpy import *
 import numpy as np
@@ -20,6 +19,8 @@ class Trainer(object):
     def __init__(self, exp:MyExp):
         self.args = exp.args
         self.exp = exp
+        # logger
+        self.logger = self.exp.logger
         # path 
         self.save_dir = self.exp.save_dir
         self.log_dir = self.exp.log_dir
@@ -60,11 +61,9 @@ class Trainer(object):
         for i, data in enumerate(tqdm(self.train_loader), 0):
             if i % args.training_rate != 0:
                 continue
-
             SeqData_t, TgtData_t, m, n = data
             SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)  # b,t,m,n  // b,1,m.n
             self.optimizer.zero_grad()
-
             outputs = run_model(self.net, args.model, SeqData, 0, 0)
             if isinstance(outputs, list):
                 if isinstance(outputs[0], tuple):
