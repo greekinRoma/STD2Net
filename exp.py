@@ -74,7 +74,7 @@ class MyExp():
         else:
             raise
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)
-        val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, )
+        val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
         return train_loader,val_loader
     def resetloader(self):
         self.train_loader,self.val_loader = self.setloader()
