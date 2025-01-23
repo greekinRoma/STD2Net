@@ -16,10 +16,8 @@ class TrainSetLoader(Dataset):
         self.fullSupervision = fullSupervision
         self.train_mean = 105.4025
         self.train_std = 26.6452
-
     def __getitem__(self, index):
         img_path_mix = self.root + self.imgs_arr[index]
-
         # Read Mix
         MixData_mat = scio.loadmat(img_path_mix)
         # try except: MixData_mat = scio.loadmat(img_path_mix, verify_compressed_data_integrity=False)
@@ -44,7 +42,6 @@ class TrainSetLoader(Dataset):
         MixData = torch.from_numpy(MixData_Img)
 
         MixData_out = torch.unsqueeze(MixData[-5:,:,:], 0)  # the last five frame
-
         [m_L, n_L] = np.shape(LabelData_Img)
         if m_L == 512 and n_L == 512:
             # Tgt preprocess

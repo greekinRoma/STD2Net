@@ -29,8 +29,6 @@ class Trainer(object):
         self.net_name = self.exp.net_name
         self.device = self.exp.device
         # dataloader
-        self.train_dataset = self.exp.train_dataset
-        self.val_dataset = self.exp.val_dataset
         self.train_loader = self.exp.train_loader
         self.val_loader = self.exp.val_loader
         # Optimizer
@@ -55,25 +53,26 @@ class Trainer(object):
 
 
     def training(self, epoch):
+        args = self.args
         running_loss = 0.0
         loss_last = 0.0
         self.net.train()
         for i, data in enumerate(tqdm(self.train_loader), 0):
-            if i % self.training_rate != 0:
+            if i % args.training_rate != 0:
                 continue
 
             SeqData_t, TgtData_t, m, n = data
             SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)  # b,t,m,n  // b,1,m.n
             self.optimizer.zero_grad()
 
-            outputs = run_model(self.net, self.net_name, SeqData, 0, 0)
+            outputs = run_model(self.net, args.model, SeqData, 0, 0)
             if isinstance(outputs, list):
                 if isinstance(outputs[0], tuple):
                     outputs[0] = outputs[0][0]
             elif isinstance(outputs, tuple):
                 outputs = outputs[0]
 
-            if 'DNANet' in self.net_name:
+            if 'DNANet' in args.model:
                 loss = 0
                 if isinstance(outputs, list):
                     for output in outputs:
@@ -81,29 +80,29 @@ class Trainer(object):
                     loss /= len(outputs)
                 else:
                     loss = self.criterion(outputs, TgtData.float())
-            elif 'ISNet' in self.net_name and self.loss_func == 'fullySup1':   ## and 'ISNet_woTFD' not in args.model
+            elif 'ISNet' in args.model and args.loss_func == 'fullySup1':   ## and 'ISNet_woTFD' not in args.model
                 edge = torch.cat([TgtData, TgtData, TgtData], dim=1).float()  # b, 3, m, n
                 gradmask = Get_gradientmask_nopadding()
                 edge_gt = gradmask(edge)
                 loss_io = self.criterion(outputs[0], TgtData.float())
-                if self.args.fullySupervised:
+                if args.fullySupervised:
                     outputs[1] = torch.sigmoid(outputs[1])
                     loss_edge = 10 * self.criterion2(outputs[1], edge_gt) + self.criterion(outputs[1], edge_gt)
                 else:
                     loss_edge = 10 * self.criterion2(torch.sigmoid(outputs[1]), edge_gt) + self.criterion(outputs[1], edge_gt.float())
-                if 'DTUM' in self.args.model or not self.args.fullySupervised:
+                if 'DTUM' in args.model or not args.fullySupervised:
                     alpha = 0.1
                 else:
                     alpha = 1
                 loss = loss_io + alpha * loss_edge
-            elif 'UIU' in self.args.model:
-                if 'fullySup2' in self.args.loss_func:
+            elif 'UIU' in args.model:
+                if 'fullySup2' in args.loss_func:
                     loss0, loss = self.criterion(outputs[0], outputs[1], outputs[2], outputs[3], outputs[4], outputs[5], outputs[6], TgtData.float())
-                    if not self.args.SpatialDeepSup:
+                    if not args.SpatialDeepSup:
                         loss = loss0   ## without SDS
                 else:
                     loss = 0
-                    if not self.args.SpatialDeepSup:
+                    if not args.SpatialDeepSup:
                         loss = self.criterion(outputs[0], TgtData.float())
                     else:
                         for output in outputs:
@@ -130,10 +129,10 @@ class Trainer(object):
             if epoch == 0 and (i + 1) % 50 == 0:
                 loss_50 = running_loss - loss_last
                 loss_last = running_loss
-                print('model: %s, epoch=%d, i=%d, loss.item=%.10f' % (self.args.model + self.args.loss_func, epoch, i, loss_50))
+                print('model: %s, epoch=%d, i=%d, loss.item=%.10f' % (args.model + args.loss_func, epoch, i, loss_50))
 
         self.epoch_loss = running_loss / i * self.Gain
-        print('model: %s, epoch: %d, loss: %.10f' % (self.args.model + self.args.loss_func, epoch + 1, self.epoch_loss))
+        print('model: %s, epoch: %d, loss: %.10f' % (args.model + args.loss_func, epoch + 1, self.epoch_loss))
         ########################################
         self.scheduler.step()
         # if optimizer.state_dict()['param_groups'][0]['lr'] < args.lrate_min:
@@ -219,7 +218,7 @@ class Trainer(object):
 
 
     def savemodel(self, epoch):
-        self.ModelPath, self.ParameterPath, self.SavePath = self.exp.generate_savepath(epoch, self.epoch_loss)
+        self.ModelPath, self.ParameterPath, self.SavePath = self.generate_savepath(self.args, epoch, self.epoch_loss)
         torch.save(self.net, self.ModelPath)
         torch.save(self.net.state_dict(), self.ParameterPath)
         print('save net OK in %s' % self.ModelPath)
@@ -244,6 +243,23 @@ class Trainer(object):
         plt.savefig(LossJPGSavePath)
         # plt.show()
         print('finished Show!')
+        
+    def generate_savepath(self,args, epoch, epoch_loss):
+
+        timestamp = time.time()
+        CurTime = time.strftime("%Y_%m_%d__%H_%M", time.localtime(timestamp))
+
+        SavePath = args.saveDir + args.model + '_SpatialDeepSup' + str(args.SpatialDeepSup) + '_' + args.loss_func + '/'
+        ModelPath = SavePath + 'net_' + str(epoch+1) + '_epoch_' + str(epoch_loss) + '_loss_' + CurTime + '.pth'
+        ParameterPath = SavePath + 'net_para_' + CurTime + '.pth'
+
+        if not os.path.exists(args.saveDir):
+            os.mkdir(args.saveDir)
+        if not os.path.exists(SavePath):
+            os.mkdir(SavePath)
+
+        return ModelPath, ParameterPath, SavePath
+        
     def launch(self):
         if self.args.train == 1:
             for epoch in range(self.args.epochs):
