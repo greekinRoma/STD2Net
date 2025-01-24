@@ -67,12 +67,8 @@ if __name__ == '__main__':
     begin_excel(r'input.xlsx', 'input')
     train_dataset,val_dataset = setloader(args)
     while(True):
-        try:
-            main_dir=r'../'
-            set_dict=read_excel(os.path.join(main_dir,'input.xlsx'),'input')
-        except:
-            main_dir = r'./'
-            set_dict = read_excel(os.path.join(main_dir, 'input.xlsx'), 'input')
+        main_dir = r'./'
+        set_dict = read_excel(os.path.join(main_dir, 'input.xlsx'), 'input')
         args=generate_args(args=args,set_dict=set_dict,is_read_excel=args.useExcel)
         torch.cuda.set_device(0)
         myexp = MyExp(args,train_dataset=train_dataset,val_dataset=val_dataset)

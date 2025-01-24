@@ -15,10 +15,13 @@ from models.model_ISNet.train_ISNet import Get_gradientmask_nopadding, Get_gradi
 from write_results import writeNUDTMIRSDT_ROC, writeIRSeq_ROC
 from exp import MyExp
 import copy 
+from torch.autograd import Variable
 class Trainer(object):
     def __init__(self, exp:MyExp):
         self.args = exp.args
         self.exp = exp
+        # evaluator
+        self.evaluator = self.exp.evaluator
         # logger
         self.logger = self.exp.logger
         # path 
@@ -141,79 +144,11 @@ class Trainer(object):
 
 
     def validation(self, epoch):
-        args = self.args
-        txt = np.loadtxt(self.test_path + 'test.txt', dtype=bytes).astype(str)
         self.net.eval()
+        mIoU,Auc,Pd,Fa=self.evaluator.get_results(self.net)
+        self.logger.write_epoch(model=self.net,epoch=epoch,Fd=Pd,Fa=Fa,AUC=Auc,mIou=mIoU)
 
-        Th_Seg = np.array(
-            [0, 1e-30, 1e-20, 1e-19, 1e-18, 1e-17, 1e-16, 1e-15, 1e-14, 1e-13, 1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7,
-             1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, .15, 0.2, .25, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, .75,
-             0.8, .85, 0.9, 0.95, 0.975, 0.98, 0.99, 0.995, 0.999, 0.9995, 0.9999, 0.99999, 0.999999, 0.9999999, 1])
-        if epoch < args.epochs-1:
-            Th_Seg = np.array([0, 1e-1, 0.2, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, 0.8, 0.9, 0.95, 1])
-
-        OldFlag = 0
-        Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
-        FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
-        time_start = time.time()
-        for i, data in enumerate(tqdm(self.val_loader), 0):
-            # if i > 5: break
-            if i % 100 == 0:
-                OldFlag = 0
-            else:
-                OldFlag = 1
-
-            with torch.no_grad():
-                SeqData_t, TgtData_t, m, n = data
-                SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)
-
-                outputs = run_model(self.net, args.model, SeqData, Old_Feat, OldFlag)
-                if 'ISNet' in args.model:   ## and args.model != 'ISNet_woTFD'
-                    edge_out = torch.sigmoid(outputs[1]).data.cpu().numpy()[0, 0, 0:m, 0:n]
-
-                if isinstance(outputs, list):
-                    outputs = outputs[0]
-                if isinstance(outputs, tuple):
-                    Old_Feat = outputs[1]
-                    outputs = outputs[0]
-                outputs = torch.squeeze(outputs, 2)
-
-                Outputs_Max = torch.sigmoid(outputs)
-                TestOut = Outputs_Max.data.cpu().numpy()[0, 0, 0:m, 0:n]
-
-                pixelsNumBatch.append(np.array(m*n))
-                if self.save_flag:
-                    img = Image.fromarray(uint8(TestOut * 255))
-                    folder_name = "%s%s/" % (self.test_save, txt[i].split('/')[0])
-                    if not os.path.exists(folder_name):
-                        os.mkdir(folder_name)
-                    name = folder_name + txt[i].split('/')[-1].split('.')[0] + '.png'
-                    img.save(name)
-                    save_name = folder_name + txt[i].split('/')[-1].split('.')[0] + '.mat'
-                    scio.savemat(save_name, {'TestOut': TestOut})
-
-                    if 'ISNet' in args.model:   ## and args.model != 'ISNet_woTFD'
-                        edge_out = Image.fromarray(uint8(edge_out * 255))
-                        edge_name = folder_name + txt[i].split('/')[-1].split('.')[0] + '_EdgeOut.png'
-                        edge_out.save(edge_name)
-
-                # the statistics for detection result
-                if self.writeflag:
-                    for th_i in range(len(Th_Seg)):
-                        FalseNum, TrueNum, TgtNum = self.eval_metrics(Outputs_Max[:,:,:m,:n], TgtData[:,:,:m,:n], Th_Seg[th_i])
-
-                        FalseNumBatch.append(FalseNum)
-                        TrueNumBatch.append(TrueNum)
-                        TgtNumBatch.append(TgtNum)
-
-        time_end = time.time()
-        print('FPS=%.3f' % ((i+1)/(time_end-time_start)))
-
-        if self.writeflag:
-            if 'NUDT-MIRSDT' in args.dataset:
-                writeNUDTMIRSDT_ROC(FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch, Th_Seg, txt, self.SavePath, args, epoch)
-            else:
-                writeIRSeq_ROC(FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch, Th_Seg, self.SavePath, args, epoch)
+        
 
 
     def savemodel(self, epoch):
@@ -264,20 +199,17 @@ class Trainer(object):
             for epoch in range(self.args.epochs):
                 self.training(epoch)
                 if (epoch+1)%self.args.evalepoch == 0:
-                    self.savemodel(epoch)
                     self.validation(epoch)
         # self..savemodel()
         self.saveloss()
         print('finished training!')
         if self.args.test == 1:
-            #####################################################
-            self.ModelPath = self.args.pth_path
-            self.test_save = self.SavePath[0:-1] + '_visualization/'
-            self.net = torch.load(self.ModelPath, map_location=self.device)
-            print('load OK!')
-            epoch = self.args.epochs
-            #####################################################
-            self.validation(epoch)
+            print(self.logger.get_best_path())
+            model = torch.load(self.logger.get_best_path(), map_location=self.device)
+            self.net.load_state_dict(model)
+            mIoU,Auc,Pd,Fa,Pds,Fas = self.evaluator.get_final_result(self.net)
+            self.logger.write_final(Pd,Fa,Auc,mIoU,Pds,Fas)
+            
     
 
 

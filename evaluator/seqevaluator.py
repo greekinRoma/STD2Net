@@ -6,7 +6,7 @@ from tqdm import tqdm
 from torch.autograd import Variable
 from sklearn.metrics import auc
 from evaluator.mIoU import mIoU
-class Evaluator():
+class SeqEvaluator():
     def __init__(self,model_name,epochs,val_loader,device,eval_metrics):
         self.model_name = model_name
         self.epochs = epochs
@@ -26,6 +26,57 @@ class Evaluator():
     def get_mIou(self):
         return self.mIou.get()
     def get_results(self,model):
+        self.mIou.reset()
+        Th_Seg = np.array(
+            [0.5])
+        OldFlag = 0
+        Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
+        FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
+        seg_index = list(Th_Seg).index(0.5)
+        for i, data in enumerate(tqdm(self.val_loader), 0):
+            # if i > 5: break
+            if i % 100 == 0:
+                OldFlag = 0
+            else:
+                OldFlag = 1
+
+            with torch.no_grad():
+                SeqData_t, TgtData_t, m, n = data
+                SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)
+                outputs = run_model(model, self.model_name, SeqData, Old_Feat, OldFlag)
+                if isinstance(outputs, list):
+                    outputs = outputs[0]
+                if isinstance(outputs, tuple):
+                    Old_Feat = outputs[1]
+                    outputs = outputs[0]
+                outputs = torch.squeeze(outputs, 2)
+                output=outputs[:,-1,:m,:n]
+                target=TgtData[:,0,:m,:n]
+                self.mIou.update(preds=output,labels=target)
+                Outputs_Max = torch.sigmoid(outputs)
+                pixelsNumBatch.append(np.array(m*n))
+                for th_i in range(len(Th_Seg)):
+                        FalseNum, TrueNum, TgtNum = self.eval_metrics(Outputs_Max[:,:,:m,:n], TgtData[:,:,:m,:n], Th_Seg[th_i])
+                        FalseNumBatch.append(FalseNum)
+                        TrueNumBatch.append(TrueNum)
+                        TgtNumBatch.append(TgtNum)
+                            
+        # 计算方法
+        #############################################
+        FalseNumAll = np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
+        TrueNumAll = np.array(TrueNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
+        TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
+        pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
+
+        Pd = self.get_Pd(TrueNumAll,TgtNumAll)
+        Fa = self.get_Fa(FalseNumAll,pixelsNumber)
+        Auc = -1
+        
+        Pd = Pd[seg_index]
+        Fa = Fa[seg_index]
+        mIoU = self.get_mIou()
+        return mIoU,Auc,Pd,Fa
+    def get_final_result(self,model):
         self.mIou.reset()
         Th_Seg = np.array(
             [0, 1e-30, 1e-20, 1e-19, 1e-18, 1e-17, 1e-16, 1e-15, 1e-14, 1e-13, 1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7,
@@ -52,7 +103,9 @@ class Evaluator():
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 2)
-
+                output=outputs[:,-1,:m,:n]
+                target=TgtData[:,0,:m,:n]
+                self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
 
                 pixelsNumBatch.append(np.array(m*n))
@@ -62,8 +115,8 @@ class Evaluator():
                         TrueNumBatch.append(TrueNum)
                         TgtNumBatch.append(TgtNum)
                         if Th_Seg[th_i] == 0.5:
-                            output=Outputs_Max[:,-1,:m,:n].cpu().numpy().copy()
-                            target=TgtData[:,0,:m,:n].cpu().numpy().copy()
+                            output=Outputs_Max[:,-1,:m,:n].cpu()
+                            target=TgtData[:,0,:m,:n].cpu()
                             self.mIou.update(preds=output,labels=target)
         # 计算方法
         #############################################
@@ -72,14 +125,13 @@ class Evaluator():
         TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
         pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
 
-        Pd = self.get_Pd(TrueNumAll,TgtNumAll)
-        Fa = self.get_Fa(FalseNumAll,pixelsNumber)
-        Auc = self.get_AUC(Fa_all=Fa,Pd_all=Pd)
+        Pds = self.get_Pd(TrueNumAll,TgtNumAll)
+        Fas = self.get_Fa(FalseNumAll,pixelsNumber)
+        Auc = self.get_AUC(Pds,Fas)
         
-        Pd = Pd[seg_index]
-        Fa = Fa[seg_index]
+        Pd = Pds[seg_index]
+        Fa = Fas[seg_index]
         mIoU = self.get_mIou()
-        return mIoU,Auc,Pd,Fa
-        
+        return mIoU,Auc,Pd,Fa,Pds,Fas
         
             
