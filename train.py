@@ -192,18 +192,6 @@ class Trainer(object):
             else:
                 loss = self.criterion(outputs, TgtData.float())
 
-            '''
-            LogSoftmax = nn.Softmax(dim=1)
-            outputs=torch.squeeze(outputs, 2)
-            Outputs_Max = LogSoftmax(outputs)
-            fig=plt.figure()
-            ShowInd=0
-            plt.subplot(221); plt.imshow(SeqData.data.cpu().numpy()[ShowInd,0,4,:,:], cmap='gray')
-            plt.subplot(222); plt.imshow(TgtData.data.cpu().numpy()[ShowInd,0,:,:], cmap='gray')
-            plt.subplot(223); plt.imshow(outputs.data.cpu().numpy()[ShowInd,1,:,:], cmap='gray')
-            plt.subplot(224); plt.imshow(Outputs_Max.data.cpu().numpy()[ShowInd,1,:,:], cmap='gray')
-            plt.show()
-            '''
 
             loss.backward()
             self.optimizer.step()

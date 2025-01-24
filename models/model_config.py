@@ -1,5 +1,5 @@
 import torch
-
+from models.net import SingleNet
 from models.model_DNANet import DNANet, DNANet_DTUM
 from models.model_res_UNet import res_UNet, res_UNet_DTUM
 from models.model_ACM import ACM
@@ -19,8 +19,9 @@ from models.model_UIU.uiunet import UIUNET, UIUNET_DTUM
 
 def model_chose(model, loss_func, SpatialDeepSup):
     num_classes = 1
-
-    if model == 'ACM':
+    if model in ['ACM','ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet']:
+        net = SingleNet(model_name=model)
+    elif model == 'ACM':
         net = ACM(in_channels=3, layers=[3]*3, fuse_mode='AsymBi', tiny=False, classes=num_classes)
 
     elif model == 'ALCNet':
