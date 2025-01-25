@@ -50,8 +50,7 @@ class SeqEvaluator():
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 2)
-                print(outputs.shape)
-                output=outputs[:,-3,:m,:n]
+                output=outputs[:,-1,:m,:n]
                 target=TgtData[:,0,:m,:n]
                 self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
