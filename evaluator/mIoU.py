@@ -33,7 +33,10 @@ def batch_intersection_union(output, target):
         target = target.float()
     else:
         raise ValueError("Unknown target dimension")
+    # print(torch.max(target).values)
+    # print(predict[predict>0])
     intersection = predict * ((predict == target).float())
+    # print(torch.sum(intersection))
     area_inter, _  = np.histogram(intersection.cpu(), bins=nbins, range=(mini, maxi))
     area_pred,  _  = np.histogram(predict.cpu(), bins=nbins, range=(mini, maxi))
     area_lab,   _  = np.histogram(target.cpu(), bins=nbins, range=(mini, maxi))

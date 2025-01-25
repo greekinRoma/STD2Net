@@ -18,6 +18,8 @@ class MyExp():
         self.device = torch.device(args.device if torch.cuda.is_available() else "cpu")
         # path 
         self.save_dir = self.args.saveDir
+        print(self.args.logsDir)
+        print(self.args.model)
         self.log_dir = os.path.join(self.args.logsDir,self.args.model)
         # model
         self.loss_func = self.args.loss_func
