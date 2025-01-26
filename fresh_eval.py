@@ -19,4 +19,4 @@ if __name__ == '__main__':
         pth_file_path = os.path.join(file_path,'best.pth')
         mIoU,Auc,Pd,Fa,Pds,Fas=evaluator.refresh_result(model_name=model_name,pth_path=pth_file_path,SpatialDeepSup=args.SpatialDeepSup)
         with open(txt_file_path,'a') as f:
-            f.write(f'\nFinal Epoch:Pd:{Pd},Fa:{Fa},AUC:{Auc},mIou:{mIoU}')
+            f.write(f'\nFinal Epoch:mIou:{mIoU*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*100000:.2f},AUC:{Auc*100:.2f}')

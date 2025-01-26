@@ -58,7 +58,7 @@ class Logger():
     def get_best_path(self):
         return os.path.join(self.logdir,f'{self.best_AUC_epoch}.pth')
     def write_final(self,Pd,Fa,AUC,mIou,Pds,Fas):
-        log_text = f'Final Epoch:Pd:{Pd},Fa:{Fa},AUC:{AUC},mIou:{mIou}'
+        log_text = f'Final Epoch:mIou:{mIou*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*100000:.2f},AUC:{AUC*100:.2f}'
         self.write_line(log_text)
         self.save_model(model=self.best_model,path=os.path.join(self.savedir,"best.pth"))
         plt.plot(Pds,Fas)
