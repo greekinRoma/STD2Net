@@ -6,6 +6,7 @@ from tqdm import tqdm
 from torch.autograd import Variable
 from sklearn.metrics import auc
 from evaluator.mIoU import mIoU
+from models.model_config import model_chose
 class SeqEvaluator():
     def __init__(self,model_name,epochs,val_loader,device,eval_metrics):
         self.model_name = model_name
@@ -28,7 +29,7 @@ class SeqEvaluator():
     def get_results(self,model):
         self.mIou.reset()
         Th_Seg = np.array(
-            [0.5])
+            [0, 1e-1, 0.2, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, 0.8, 0.9, 0.95, 1])
         OldFlag = 0
         Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
         FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
@@ -70,20 +71,19 @@ class SeqEvaluator():
         TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
         pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
 
-        Pd = self.get_Pd(TrueNumAll,TgtNumAll)
-        Fa = self.get_Fa(FalseNumAll,pixelsNumber)
-        Auc = -1
+        Pds = self.get_Pd(TrueNumAll,TgtNumAll)
+        Fas = self.get_Fa(FalseNumAll,pixelsNumber)
+        Auc = self.get_AUC(Fas,Pds)
         
-        Pd = Pd[seg_index]
-        Fa = Fa[seg_index]
+        Pd = Pds[seg_index]
+        Fa = Fas[seg_index]
         mIoU = self.get_mIou()
         return mIoU,Auc,Pd,Fa
     def get_final_result(self,model):
+        model.eval()
         self.mIou.reset()
         Th_Seg = np.array(
-            [0, 1e-30, 1e-20, 1e-19, 1e-18, 1e-17, 1e-16, 1e-15, 1e-14, 1e-13, 1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7,
-             1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, .15, 0.2, .25, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, .75,
-             0.8, .85, 0.9, 0.95, 0.975, 0.98, 0.99, 0.995, 0.999, 0.9995, 0.9999, 0.99999, 0.999999, 0.9999999, 1])
+            [0, 1e-1, 0.2, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, 0.8, 0.9, 0.95, 1])
         OldFlag = 0
         Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
         FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
@@ -109,17 +109,12 @@ class SeqEvaluator():
                 target=TgtData[:,0,:m,:n]
                 self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
-
                 pixelsNumBatch.append(np.array(m*n))
                 for th_i in range(len(Th_Seg)):
                         FalseNum, TrueNum, TgtNum = self.eval_metrics(Outputs_Max[:,:,:m,:n], TgtData[:,:,:m,:n], Th_Seg[th_i])
                         FalseNumBatch.append(FalseNum)
                         TrueNumBatch.append(TrueNum)
                         TgtNumBatch.append(TgtNum)
-                        if Th_Seg[th_i] == 0.5:
-                            output=Outputs_Max[:,-1,:m,:n].cpu()
-                            target=TgtData[:,0,:m,:n].cpu()
-                            self.mIou.update(preds=output,labels=target)
         # 计算方法
         #############################################
         FalseNumAll = np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
@@ -129,11 +124,16 @@ class SeqEvaluator():
 
         Pds = self.get_Pd(TrueNumAll,TgtNumAll)
         Fas = self.get_Fa(FalseNumAll,pixelsNumber)
-        Auc = self.get_AUC(Pds,Fas)
+        Auc = self.get_AUC(Fas,Pds)
         
         Pd = Pds[seg_index]
         Fa = Fas[seg_index]
         mIoU = self.get_mIou()
         return mIoU,Auc,Pd,Fa,Pds,Fas
-        
-            
+    def refresh_result(self,model_name,pth_path,SpatialDeepSup=True):
+        model_weights = torch.load(pth_path,self.device)
+        model = model_chose(model_name,loss_func=None,SpatialDeepSup=SpatialDeepSup)
+        model.to(self.device)
+        model.load_state_dict(model_weights)
+        mIoU,Auc,Pd,Fa,Pds,Fas = self.get_final_result(model)
+        return mIoU,Auc,Pd,Fa,Pds,Fas

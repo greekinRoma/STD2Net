@@ -207,6 +207,7 @@ class Trainer(object):
             print(self.logger.get_best_path())
             model = torch.load(self.logger.get_best_path(), map_location=self.device)
             self.net.load_state_dict(model)
+            self.net.eval()
             mIoU,Auc,Pd,Fa,Pds,Fas = self.evaluator.get_final_result(self.net)
             self.logger.write_final(Pd,Fa,Auc,mIoU,Pds,Fas)
             

@@ -46,17 +46,17 @@ class Logger():
         if (AUC>self.best_AUC):
             self.best_AUC = AUC
             self.best_AUC_epoch = epoch
+            self.best_model = model
         if (mIou>self.best_miou):
             self.best_miou = mIou
             self.best_miou_epoch = epoch
-            self.best_model = model
         save_log = f'Best Pd:({self.best_Fd_epoch},{self.best_Fd}),Best Fa:({self.best_Fa_epoch},{self.best_Fa}),Best AUC:({self.best_AUC_epoch},{self.best_AUC}), Best mIou:({self.best_miou_epoch},{self.best_miou})'
         print(save_log)
         print('-'*len(save_log))
         self.write_line(save_log)
         self.write_line('-'*len(save_log))
     def get_best_path(self):
-        return os.path.join(self.logdir,f'{self.best_miou_epoch}.pth')
+        return os.path.join(self.logdir,f'{self.best_AUC_epoch}.pth')
     def write_final(self,Pd,Fa,AUC,mIou,Pds,Fas):
         log_text = f'Final Epoch:Pd:{Pd},Fa:{Fa},AUC:{AUC},mIou:{mIou}'
         self.write_line(log_text)

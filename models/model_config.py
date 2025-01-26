@@ -63,7 +63,6 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
 
     # Old_Feat = SeqData[:,:,:-1, :,:] * 0  # interface for iteration input
     # OldFlag = 1  # 1: i
-
     if model=='DNANet' or model=='ResUNet' or model=='ACM' or model=='ALCNet' or model =='SDiffTransNet':   ## or model=='ISNet_woTFD'
         input = SeqData[:, :, -1, :, :].repeat(1, 3, 1, 1)
         outputs = net(input)
@@ -90,7 +89,12 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
         input = SeqData.repeat(1, 3, 1, 1, 1)
         d0, d1,d2,d3,d4,d5,d6 = net(input, Old_Feat, OldFlag)
         outputs = [d0, d1, d2, d3, d4, d5, d6]
-
+    elif 'DTUM' in model:
+        input = SeqData.repeat(1, 3, 1, 1, 1)
+        outputs = net(input, Old_Feat, OldFlag)
+    else:
+        input = SeqData[:, :, -1, :, :].repeat(1, 3, 1, 1)
+        outputs = net(input)
     # if OldFlag == 0:
     #     if 'DTUM' in model:
     #         flops, params = profile(net, inputs=(input, Old_Feat, OldFlag))   # runtimeerror cpu : net.module
