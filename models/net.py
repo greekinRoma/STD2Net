@@ -21,5 +21,7 @@ class SingleNet(nn.Module):
             self.model = ISTDU_Net()
         elif model_name == 'res_UNet':
             self.model = res_UNet()
+        elif model_name == 'SDecNet':
+            self.model = SDecNet()
     def forward(self, img):
         return self.model(img)

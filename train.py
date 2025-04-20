@@ -63,14 +63,14 @@ def parse_args():
     parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
 
     # train
-    parser.add_argument('--model',     type=str, default='SDiffTransNet',
+    parser.add_argument('--model',     type=str, default='SDecNet',
                         help='ResUNet_DTUM, DNANet_DTUM, ACM, ALCNet, ResUNet, DNANet, ISNet, UIU')
     parser.add_argument('--loss_func', type=str, default='fullySup',
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
     parser.add_argument('--fullySupervised', default=True)
     parser.add_argument('--SpatialDeepSup',  default=False)
     parser.add_argument('--batchsize', type=int,   default=1)
-    parser.add_argument('--epochs',    type=int,   default=1)
+    parser.add_argument('--epochs',    type=int,   default=20)
     parser.add_argument('--evalepoch',type=int, default=1)
     parser.add_argument('--lrate',     type=float, default=0.001)
     # parser.add_argument('--lrate_min', type=float, default=1e-5)

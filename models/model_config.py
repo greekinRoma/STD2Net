@@ -19,7 +19,7 @@ from models.model_UIU.uiunet import UIUNET, UIUNET_DTUM
 
 def model_chose(model, loss_func, SpatialDeepSup):
     num_classes = 1
-    if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet']:
+    if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet']:
         net = SingleNet(model_name=model)
     elif model == 'ACM':
         net = ACM(in_channels=3, layers=[3]*3, fuse_mode='AsymBi', tiny=False, classes=num_classes)
@@ -41,21 +41,12 @@ def model_chose(model, loss_func, SpatialDeepSup):
     elif model == 'ResUNet_DTUM':
         net = res_UNet_DTUM(num_classes=num_classes, input_channels=3, block=Res_block, num_blocks=[2,2,2,2], nb_filter=[8,16,32,64,128])
 
-    elif model == 'ISNet':
-        net = ISNet(layer_blocks=[4]*3, channels=[8,16,32,64], num_classes=num_classes)
-    # elif model == 'ISNet_woTFD':
-    #     net = ISNet_woTFD(layer_blocks=[4]*3, channels=[8,16,32,64], num_classes=num_classes)
-    elif model == 'ISNet_DTUM':
-        net = ISNet_DTUM(layer_blocks=[4] * 3, channels=[8, 16, 32, 64], num_classes=num_classes)
-
     elif model == 'UIU':
         net = UIUNET(in_ch=3, out_ch=num_classes)
     elif model == 'UIU_DTUM':
         net = UIUNET_DTUM(in_ch=3, out_ch=num_classes, deep_supervision=SpatialDeepSup)
     elif model == 'STDiffTransNet_DTUM':
         net = SDiffTransNet_DTUM()
-    elif model == 'SDiffTransNet':
-        net = SDiffTransNet()
     return net
 
 
