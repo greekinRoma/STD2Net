@@ -11,7 +11,6 @@ from tqdm import tqdm
 from PIL import Image
 from sklearn.metrics import auc
 import os
-from models.model_ISNet.train_ISNet import Get_gradientmask_nopadding, Get_gradient_nopadding
 from write_results import writeNUDTMIRSDT_ROC, writeIRSeq_ROC
 from exp import MyExp
 import copy 
@@ -82,21 +81,6 @@ class Trainer(object):
                     loss /= len(outputs)
                 else:
                     loss = self.criterion(outputs, TgtData.float())
-            elif 'ISNet' in args.model and args.loss_func == 'fullySup1':   ## and 'ISNet_woTFD' not in args.model
-                edge = torch.cat([TgtData, TgtData, TgtData], dim=1).float()  # b, 3, m, n
-                gradmask = Get_gradientmask_nopadding()
-                edge_gt = gradmask(edge)
-                loss_io = self.criterion(outputs[0], TgtData.float())
-                if args.fullySupervised:
-                    outputs[1] = torch.sigmoid(outputs[1])
-                    loss_edge = 10 * self.criterion2(outputs[1], edge_gt) + self.criterion(outputs[1], edge_gt)
-                else:
-                    loss_edge = 10 * self.criterion2(torch.sigmoid(outputs[1]), edge_gt) + self.criterion(outputs[1], edge_gt.float())
-                if 'DTUM' in args.model or not args.fullySupervised:
-                    alpha = 0.1
-                else:
-                    alpha = 1
-                loss = loss_io + alpha * loss_edge
             elif 'UIU' in args.model:
                 if 'fullySup2' in args.loss_func:
                     loss0, loss = self.criterion(outputs[0], outputs[1], outputs[2], outputs[3], outputs[4], outputs[5], outputs[6], TgtData.float())
@@ -111,20 +95,6 @@ class Trainer(object):
                             loss += self.criterion(output, TgtData.float())
             else:
                 loss = self.criterion(outputs, TgtData.float())
-
-            '''
-            LogSoftmax = nn.Softmax(dim=1)
-            outputs=torch.squeeze(outputs, 2)
-            Outputs_Max = LogSoftmax(outputs)
-            fig=plt.figure()
-            ShowInd=0
-            plt.subplot(221); plt.imshow(SeqData.data.cpu().numpy()[ShowInd,0,4,:,:], cmap='gray')
-            plt.subplot(222); plt.imshow(TgtData.data.cpu().numpy()[ShowInd,0,:,:], cmap='gray')
-            plt.subplot(223); plt.imshow(outputs.data.cpu().numpy()[ShowInd,1,:,:], cmap='gray')
-            plt.subplot(224); plt.imshow(Outputs_Max.data.cpu().numpy()[ShowInd,1,:,:], cmap='gray')
-            plt.show()
-            '''
-
             loss.backward()
             self.optimizer.step()
             running_loss += loss.item()
