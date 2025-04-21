@@ -88,7 +88,7 @@ class Res_CBAM_block(nn.Module):
         return out
 
 class DNANet(nn.Module):
-    def __init__(self, num_classes=1,input_channels=1, block=Res_CBAM_block, num_blocks=[2, 2, 2, 2], nb_filter=[16, 32, 64, 128, 256], deep_supervision=True, mode='test'):
+    def __init__(self, num_classes=1,input_channels=3, block=Res_CBAM_block, num_blocks=[2, 2, 2, 2], nb_filter=[16, 32, 64, 128, 256], deep_supervision=True, mode='test'):
         super(DNANet, self).__init__()
         self.mode = mode
         self.relu = nn.ReLU(inplace = True)

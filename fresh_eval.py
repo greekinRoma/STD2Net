@@ -4,6 +4,7 @@ from evaluator.seqevaluator import SeqEvaluator
 import os
 from launch import parse_args,setloader
 from exp import MyExp
+import shutil
 if __name__ == '__main__':
     args = parse_args()
     train_dataset,val_dataset = setloader(args)
@@ -12,11 +13,15 @@ if __name__ == '__main__':
     result_dir = './results'
     for file_name in os.listdir(result_dir):
         model_name = file_name.split('_')[0]
-        file_path = os.path.join(result_dir,file_name)
-        if (len(os.listdir(file_path))==0): 
+        pth_file_path = os.path.join('./logs',model_name)
+        txt_file_path = os.path.join(result_dir,file_name)
+        # print(len(os.listdir(file_path)))
+        if (len(os.listdir(pth_file_path))==0): 
             continue
-        txt_file_path = os.path.join(file_path,'log.txt')
-        pth_file_path = os.path.join(file_path,'best.pth')
+        sav_file_path = os.path.join(txt_file_path,'best.pth')
+        txt_file_path = os.path.join(txt_file_path,'log.txt')
+        pth_file_path = os.path.join(pth_file_path,'best.pth')
+        shutil.copy(pth_file_path,sav_file_path)
         mIoU,Auc,Pd,Fa,Pds,Fas=evaluator.refresh_result(model_name=model_name,pth_path=pth_file_path,SpatialDeepSup=args.SpatialDeepSup)
         with open(txt_file_path,'a') as f:
             f.write(f'\nFinal Epoch:mIou:{mIoU*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*100000:.2f},AUC:{Auc*100:.2f}')

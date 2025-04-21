@@ -81,18 +81,6 @@ class Trainer(object):
                     loss /= len(outputs)
                 else:
                     loss = self.criterion(outputs, TgtData.float())
-            elif 'UIU' in args.model:
-                if 'fullySup2' in args.loss_func:
-                    loss0, loss = self.criterion(outputs[0], outputs[1], outputs[2], outputs[3], outputs[4], outputs[5], outputs[6], TgtData.float())
-                    if not args.SpatialDeepSup:
-                        loss = loss0   ## without SDS
-                else:
-                    loss = 0
-                    if not args.SpatialDeepSup:
-                        loss = self.criterion(outputs[0], TgtData.float())
-                    else:
-                        for output in outputs:
-                            loss += self.criterion(output, TgtData.float())
             else:
                 loss = self.criterion(outputs, TgtData.float())
             loss.backward()
@@ -174,7 +162,7 @@ class Trainer(object):
         self.saveloss()
         print('finished training!')
         if self.args.test == 1:
-            print(self.logger.get_best_path())
+
             model = torch.load(self.logger.get_best_path(), map_location=self.device)
             self.net.load_state_dict(model)
             self.net.eval()

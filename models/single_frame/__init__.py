@@ -8,6 +8,7 @@ from .RDIAN.model_RDIAN import RDIAN as RDIAN
 from .ISTDU_Net.ctNet.ctNet import ISTDU_Net
 from .ResUNet.model_res_UNet import res_UNet
 from .SDecNet.segmentation import SDecNet
+from .DATransNet.segmentation import DATransNet
 from torch import nn
 class SingleNet(nn.Module):
     def __init__(self, model_name):
@@ -21,6 +22,8 @@ class SingleNet(nn.Module):
             self.model = AGPCNet()
         elif model_name == 'ISTDU-Net':
             self.model = ISTDU_Net()
+        elif model_name == 'DNANet':
+            self.model = DNANet()
         elif model_name == 'RDIAN':
             self.model = RDIAN()
         elif model_name == 'ISTDU_Net':
@@ -29,5 +32,7 @@ class SingleNet(nn.Module):
             self.model = res_UNet()
         elif model_name == 'SDecNet':
             self.model = SDecNet()
+        elif model_name =='DATransNet':
+            self.model = DATransNet()
     def forward(self, img):
         return self.model(img)

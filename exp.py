@@ -74,9 +74,6 @@ class MyExp():
         if self.args.dataset == 'NUDT-MIRSDT':
             train_dataset = TrainSetLoader(self.train_path, fullSupervision=self.args.fullySupervised)
             val_dataset = TestSetLoader(self.test_path)
-        elif self.args.dataset == 'IRDST':
-            train_dataset = IRDST_TrainSetLoader(self.train_path, fullSupervision=self.args.fullySupervised, align=self.args.align)
-            val_dataset = IRDST_TestSetLoader(self.test_path, align=self.args.align)
         else:
             raise
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)
