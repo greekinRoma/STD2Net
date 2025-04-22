@@ -11,28 +11,28 @@ from .SDecNet.segmentation import SDecNet
 from .DATransNet.segmentation import DATransNet
 from torch import nn
 class SingleNet(nn.Module):
-    def __init__(self, model_name):
+    def __init__(self, model_name,in_channel):
         super(SingleNet, self).__init__()
         self.model_name = model_name
         if model_name == 'ACM':
-            self.model = ACM()
+            self.model = ACM(in_channels=in_channel)
         elif model_name == 'ALCNet':
-            self.model = ALCNet()
+            self.model = ALCNet(in_channels=in_channel)
         elif model_name == 'AGPCNet':
-            self.model = AGPCNet()
+            self.model = AGPCNet(in_channels=in_channel)
         elif model_name == 'ISTDU-Net':
-            self.model = ISTDU_Net()
+            self.model = ISTDU_Net(in_channels=in_channel)
         elif model_name == 'DNANet':
-            self.model = DNANet()
+            self.model = DNANet(in_channels=in_channel)
         elif model_name == 'RDIAN':
-            self.model = RDIAN()
+            self.model = RDIAN(in_channels=in_channel)
         elif model_name == 'ISTDU_Net':
-            self.model = ISTDU_Net()
+            self.model = ISTDU_Net(in_channels=in_channel)
         elif model_name == 'res_UNet':
-            self.model = res_UNet()
+            self.model = res_UNet(input_channels=in_channel)
         elif model_name == 'SDecNet':
-            self.model = SDecNet()
+            self.model = SDecNet(in_channels=in_channel)
         elif model_name =='DATransNet':
-            self.model = DATransNet()
+            self.model = DATransNet(in_channels=in_channel)
     def forward(self, img):
         return self.model(img)
