@@ -5,7 +5,7 @@ class DTUMNet(nn.Module):
     def __init__(self, net, in_channel=1,num_classes=1):
         super(DTUMNet, self).__init__()
 
-        self.UNet = SingleNet(model_name=net,in_channel=in_channel)
+        self.UNet = SingleNet(model_name=net,in_channel=in_channel,num_classes=32)
         self.DTUM = DTUM(32, num_classes, num_frames=5)
 
     def forward(self, X_In, Old_Feat, OldFlag):

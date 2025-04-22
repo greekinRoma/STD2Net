@@ -241,7 +241,7 @@ class BottomUpLocal_FPNFuse(nn.Module):
 
 
 class MPCMResNetFPN(nn.Module):
-    def __init__(self, layers= [4] * 3 , channels=[8, 16, 32, 64], shift=3, r=2, scale_mode='localsk', pyramid_fuse='bottomuplocal'):
+    def __init__(self, layers= [4] * 3 , num_classes=1, channels=[8, 16, 32, 64], shift=3, r=2, scale_mode='localsk', pyramid_fuse='bottomuplocal'):
         super(MPCMResNetFPN, self).__init__()
 
         # layers = [4] * 3  # 4
@@ -313,7 +313,7 @@ class MPCMResNetFPN(nn.Module):
         self.bottomuplocal_fpn_2 = BottomUpLocal_FPNFuse(channels=channels[1])
         self.bottomuplocal_fpn_1 = BottomUpLocal_FPNFuse(channels=channels[1])
 
-        self.head = _FCNHead(channels[1], 1)
+        self.head = _FCNHead(channels[1], num_classes)
 
     def _make_layer(self, block, block_num, in_channels, out_channels, stride):
         # 仅第一个block单元负责增加通道数和降采样，后续block单元都保持Tensor形状不变

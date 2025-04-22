@@ -40,7 +40,7 @@ class Logger():
         if (Fd>self.best_Fd):
             self.best_Fd = Fd
             self.best_Fd_epoch = epoch
-        if (Fa>self.best_Fa):
+        if (Fa<self.best_Fa):
             self.best_Fa = Fa
             self.best_Fa_epoch = epoch
         if (AUC>self.best_AUC):
