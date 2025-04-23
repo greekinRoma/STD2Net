@@ -31,8 +31,8 @@ class SingleNet(nn.Module):
         elif model_name == 'res_UNet':
             self.model = res_UNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':
-            self.model = SDecNet(in_channels=in_channel,n_channels=num_classes)
+            self.model = SDecNet(n_classes=num_classes,n_channels=in_channel)
         elif model_name =='DATransNet':
-            self.model = DATransNet(in_channels=in_channel,n_channels=num_classes)
+            self.model = DATransNet(n_classes=in_channel,n_channels=num_classes)
     def forward(self, img):
         return self.model(img)

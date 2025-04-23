@@ -11,7 +11,7 @@ class DTUMNet(nn.Module):
     def forward(self, X_In, Old_Feat, OldFlag):
 
         FrameNum = X_In.shape[2]
-        Features = X_In[:, :, -1, :, :]           # [2,1,512,512]
+        Features = X_In[:, :, -1, :, :]
         Features = self.UNet(Features)
         Features = torch.unsqueeze(Features, 2)
 

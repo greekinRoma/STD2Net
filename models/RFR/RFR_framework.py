@@ -3,25 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import math
-from model.dcn.modules.deform_conv import DeformConv
+from .dcn.modules.deform_conv import DeformConv
 import os
-from model import *
-from model.utils import *
-
-def model_lib(model_chose):
-    model_factory = {
-                     'ACM': ACM,
-                     'ALCNet': ALCNet,
-                     'ISTUDNet': ISTUDNet,
-                     'ResUNet': ResUNet,
-                     'DNANet': DNANet,
-                     }
-    return model_factory[model_chose]
-
+from .utils import *
+from ..single_frame import SingleNet
 class RFR(nn.Module):
     def __init__(self,
                  mid_channels=16,
-                 head_name='ResUnet'):
+                 net_name=None):
 
         super(RFR, self).__init__()
         self.mid_channels = mid_channels
@@ -39,10 +28,9 @@ class RFR(nn.Module):
             2 * mid_channels, mid_channels, 3, 1, 1)
         
         ### detection_head
-        net = model_lib(head_name)
-        self.detection_head = net(input_channels=mid_channels)
+        self.detection_head = SingleNet(model_name=net_name,in_channel=1,num_classes=mid_channels)
 
-    def forward_train(self, lqs):
+    def forward(self, lqs):
         """Forward function for BasicVSR++.
 
         Args:
@@ -78,22 +66,10 @@ class RFR(nn.Module):
             fea = self.fusion(fea)
             out = self.detection_head(fea).sigmoid()
             outputs.append(out) 
-        return torch.stack(outputs, dim=1)
-
-    def forward_test(self, lq, feat_prop):
-        feat_current = self.feat_extract(lq)
-        
-        if feat_prop == None:
-            feat_prop = feat_current
-        else:
-            feat_prop = self.deform_align(feat_prop, feat_current)
-        feat_prop = self.spatio_temporal_fusion(feat_prop, feat_current)
-        
-        fea = torch.cat([feat_current, feat_prop], dim=1)
-        fea = self.fusion(fea)
-        out = self.detection_head(fea).sigmoid()
-        
-        return out, feat_prop
+        x_out = outputs[-1]
+        Old_Feat = outputs[:-1]
+        Old_Feat = torch.stack(Old_Feat,dim=2)
+        return x_out,Old_Feat
     
 class TSFM(nn.Module):
     """Temporal Spatial Attention (TSA) fusion module.
