@@ -22,14 +22,14 @@ import pathlib
 import torch.backends.cudnn as cudnn
 import torch
 from torch.utils.data import DataLoader, DistributedSampler
-from MFIRSTD.utils.torch_poly_lr_decay import PolynomialLRDecay as PolynomialLRDecay
-from MFIRSTD.datasets.train.train_data import TrainDataset
-from MFIRSTD.datasets.test.val_data import ValDataset
-from MFIRSTD.utils import misc as misc
-from MFIRSTD.datasets import transforms as T
-from MFIRSTD.evals import infer_on_dataset_train
-from MFIRSTD.utils.wandb_utils import init_or_resume_wandb_run, get_viz_img
-from MFIRSTD.models.utils import parse_argdict
+from .MFIRSTD.utils.torch_poly_lr_decay import PolynomialLRDecay as PolynomialLRDecay
+from .MFIRSTD.datasets.train.train_data import TrainDataset
+from .MFIRSTD.datasets.test.val_data import ValDataset
+from .MFIRSTD.utils import misc as misc
+from .MFIRSTD.datasets import transforms as T
+from .MFIRSTD.evals import infer_on_dataset_train
+from .MFIRSTD.utils.wandb_utils import init_or_resume_wandb_run, get_viz_img
+from .MFIRSTD.models.utils import parse_argdict
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

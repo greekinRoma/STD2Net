@@ -18,9 +18,6 @@ import os
 
 from MIRSDTDataLoader import TrainSetLoader, TestSetLoader
 from IRDSTDataLoader import IRDST_TrainSetLoader, IRDST_TestSetLoader
-
-from models.model_ISNet.train_ISNet import Get_gradientmask_nopadding, Get_gradient_nopadding
-from models.model_STDiffTransNet.STDiffTransNet import SDiffTransNet_DTUM
 from models.model_config import model_chose, run_model
 from losses import loss_chose
 from ShootingRules import ShootingRules

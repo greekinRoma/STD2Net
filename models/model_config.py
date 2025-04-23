@@ -9,6 +9,8 @@ def model_chose(model, loss_func, SpatialDeepSup):
     elif 'DTUM' in model:
         model = model.strip('DTUM_')
         net = DTUMNet(model,in_channel=1)
+    else:
+        raise
     return net
 
 
