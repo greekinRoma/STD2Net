@@ -9,9 +9,6 @@ def model_chose(model, loss_func, SpatialDeepSup):
     elif 'DTUM' in model:
         model = model.strip('DTUM_')
         net = DTUMNet(model,in_channel=1)
-    elif 'RFR' in model:
-        model = model.strip('RFR_')
-        net = RFR(net_name=model)
     return net
 
 
@@ -21,6 +18,4 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
         outputs = net(input)
     elif 'DTUM' in model:
         outputs = net(SeqData, Old_Feat, OldFlag)
-    elif 'RFR' in model:
-        outputs = net(SeqData)
     return outputs
