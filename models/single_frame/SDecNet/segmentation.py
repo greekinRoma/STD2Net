@@ -1,22 +1,15 @@
 import torch
 import torch.nn as nn
-from torch.nn import Flatten
-import torch.nn.functional as F
-from .Gradient_attention.contrast_and_atrous import AttnContrastLayer
-from .CDCNs.Gradient_model import ExpansionContrastModule
+from .FDecM.SDecM import SDecM
 from .AttentionModule import *
-from .AttentionModule import _NonLocalBlockND
-from .CSPBlocks.InceptionNext import InceptionDWConv2d
-from .CSPBlocks.resNext import ResNextBlock
-from .SoftPool.pytorch.SoftPool import SoftPool2d
-# from .SoftPool.SoftPool.idea import SoftPool2d
-# from .....files.SoftPool import soft_pool2d
+from .UIU_module.model_UIUNet import *
+from .Pool.InceptionPool import InceptionPool as down_layer
 def get_activation(activation_type):
     activation_type = activation_type.lower()
     if hasattr(nn, activation_type):
         return getattr(nn, activation_type)()
     else:
-        return nn.ReLU()   
+        return nn.ReLU()        
         
 class CBN(nn.Module):
     def __init__(self, in_channels, out_channels, activation='ReLU',kernel_size=3):
@@ -80,31 +73,19 @@ class Res_block(nn.Module):
         out += residual
         out = self.relu(out)
         return out
-class down_layer(nn.Module):
-    def __init__(self,in_channel,out_channel,kernel=2,stride=2):
-        super().__init__()
-        self.max_pool = nn.MaxPool2d((2,2))
-        self.avg_pool = nn.AvgPool2d((2,2))
-    def forward(self,inp):
-        out1,out2 = torch.chunk(inp,dim=1,chunks=2)
-        out1 = self.max_pool(out1)
-        out2 = self.avg_pool(out2)
-        out = torch.concat([out1,out2],dim=1)
-        return out
 class SDecNet(nn.Module):
-    def __init__(self,  n_channels=3, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
+    def __init__(self,  n_channels=1, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
         super().__init__()
         self.vis = vis
         self.deepsuper = deepsuper
         self.mode = mode
         self.n_channels = n_channels
         self.n_classes = n_classes
-        in_channels = 16  # basic channel 64
+        in_channels = 8
         block = Res_block
-        # self.pool = nn.MaxPool2d((2,2))
-        self.inc = self._make_layer(block, n_channels, in_channels)
-        self.down1 = down_layer(in_channel=in_channels,out_channel=in_channels)
-        self.encoder1 = self._make_layer(block, in_channels, in_channels * 2,1)  
+        self.inc = RSU7(n_channels,in_channels,in_channels*2,dilation_ratio=1)
+        self.down1 = down_layer(in_channel=in_channels*2,out_channel=in_channels*2)
+        self.encoder1 = self._make_layer(block, in_channels * 2, in_channels * 2, 1) 
         self.down2 = down_layer(in_channel=in_channels*2,out_channel=in_channels*2)
         self.encoder2 = self._make_layer(block, in_channels * 2, in_channels * 4, 1) 
         self.down3 = down_layer(in_channel=in_channels*4,out_channel=in_channels*4)
@@ -112,16 +93,17 @@ class SDecNet(nn.Module):
         self.down4 = down_layer(in_channel=in_channels*8,out_channel=in_channels*8)
         self.encoder4 = self._make_layer(block, in_channels * 8,  in_channels * 8, 1)  
 
-        self.contras1 = ExpansionContrastModule(in_channels=in_channels*1,out_channels=in_channels*1,kernel_size=2,shifts=[1,3])
-        self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=2,shifts=[1,3])
-        self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,shifts=[1,3])
-        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,kernel_size=2,shifts=[1,3])
+        self.contras1 = SDecM(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=1,shifts=[1,3])
+        self.contras2 = SDecM(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=1,shifts=[1,3])
+        self.contras3 = SDecM(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=1,shifts=[1,3])
+        self.contras4 = SDecM(in_channels=in_channels*8,out_channels=in_channels*8,kernel_size=1,shifts=[1,3])
+        
         self.decoder4 = UpBlock_attention(in_channels * 16, in_channels * 4, nb_Conv=2)
         self.decoder3 = UpBlock_attention(in_channels * 8, in_channels * 2, nb_Conv=2)
-        self.decoder2 = UpBlock_attention(in_channels * 4, in_channels, nb_Conv=2)
-        self.decoder1 = UpBlock_attention(in_channels * 2, in_channels, nb_Conv=2)
-        self.outc = nn.Sequential(InceptionDWConv2d(in_channels=in_channels),
-                                  nn.Conv2d(in_channels, n_classes, kernel_size=(1, 1), stride=(1, 1)))
+        self.decoder2 = UpBlock_attention(in_channels * 4, in_channels*2, nb_Conv=2)
+        self.decoder1 = UpBlock_attention(in_channels * 4, in_channels*2, nb_Conv=2)
+        self.outc = nn.Sequential(RSU7(in_channels*2,in_channels,in_channels*2,dilation_ratio=1),
+                                  nn.Conv2d(in_channels*2, n_classes, kernel_size=(1, 1), stride=(1, 1)))
     def _make_layer(self, block, input_channels, output_channels, num_blocks=1):
         layers = []
         layers.append(block(input_channels, output_channels))
@@ -146,5 +128,4 @@ class SDecNet(nn.Module):
         d3 = self.decoder3(d4, c3, x3)
         d2 = self.decoder2(d3, c2, x2)
         out = self.outc(self.decoder1(d2, c1, x1))
-        print(out.shape)
-        return out
+        return out.sigmoid()

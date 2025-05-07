@@ -1,9 +1,3 @@
-"""
-MED-VT model.
-Some parts of the code is taken from VisTR (https://github.com/Epiphqny/VisTR)
-which was again Modified from DETR (https://github.com/facebookresearch/detr)
-And modified as needed.
-"""
 import torchvision.ops
 from typing import Optional, List, OrderedDict, Dict
 import torch
@@ -1247,22 +1241,4 @@ def build_model_lmaf_swinbackbone_without_criterion(args):
                         num_frames=args.num_frames, n_class=args.num_classes)
 
     return model
-
-
-def build_model_lmaf_swinbackbone(args):
-    # Model
-    model = build_model_lmaf_swinbackbone_without_criterion(args)
-    # Losses
-    if args.is_sc_block:
-        weight_dict = {"loss_mask": args.mask_loss_coef, "loss_dice": args.dice_loss_coef, "loss_flow": args.flow_loss_coef}
-    else:
-        weight_dict = {"loss_mask": args.mask_loss_coef, "loss_dice": args.dice_loss_coef}
-    losses = ["masks"]
-    if args.is_train:
-        criterion = criterions.SetCriterion(weight_dict=weight_dict, losses=losses, is_sc_block=args.is_sc_block, aux_loss=args.aux_loss, aux_loss_norm=args.aux_loss_norm)
-    else:
-        criterion = criterions.SetCriterion(weight_dict=weight_dict, losses=losses)
-    criterion.to(torch.device(args.device))
-    logger.debug('swin model')
-    return model, criterion
 

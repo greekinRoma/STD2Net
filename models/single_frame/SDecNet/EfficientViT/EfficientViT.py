@@ -8,7 +8,7 @@ import torch
 import itertools
 import torch.nn as nn
 import torch.nn.functional as F
-from ..CDCNs.Gradient_model import ExpansionContrastModule
+from ..CDCNs.Gradient_model import SDecM
 from timm.models.vision_transformer import trunc_normal_
 from timm.models.layers import SqueezeExcite
 

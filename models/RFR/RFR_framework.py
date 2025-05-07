@@ -28,7 +28,7 @@ class RFR(nn.Module):
             2 * mid_channels, mid_channels, 3, 1, 1)
         
         ### detection_head
-        self.detection_head = SingleNet(model_name=net_name,in_channel=1,num_classes=mid_channels)
+        self.detection_head = SingleNet(model_name=net_name,in_channel=mid_channels,num_classes=1)
 
     def forward(self, lqs):
         """Forward function for BasicVSR++.
@@ -64,10 +64,10 @@ class RFR(nn.Module):
         for i in range(0, t):
             fea = torch.cat([feats[i], feat_props[i]], dim=1)
             fea = self.fusion(fea)
-            out = self.detection_head(fea).sigmoid()
+            out = self.detection_head(fea)
             outputs.append(out) 
         x_out = outputs[-1]
-        Old_Feat = outputs[:-1]
+        Old_Feat = outputs[1:]
         Old_Feat = torch.stack(Old_Feat,dim=2)
         return x_out,Old_Feat
     

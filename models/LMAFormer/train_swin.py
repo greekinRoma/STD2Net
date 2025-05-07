@@ -370,7 +370,9 @@ def train(args, device, model, criterion):
     return model
 
 
-def main(args):
+def LMAFormer(args):
+    args_parser = argparse.ArgumentParser('LMAFormer inference script', parents=[get_args_parser()])
+    parsed_args = args_parser.parse_args()
     print('starting main ...')
     cudnn.benchmark = False
     cudnn.deterministic = True
@@ -383,64 +385,7 @@ def main(args):
     misc.init_distributed_mode(args)
     logger.debug("git:\n  {}\n".format(misc.get_sha()))
     device = torch.device(args.device)
-    from MFIRSTD.models.lmaf_swin import build_model_lmaf_swinbackbone as build_model
-    model, criterion = build_model(args)
-    # logger.debug(str(model))
-    model.to(device)
-    # ########### MODEL TRAIN #################################
-    train(args, device, model, criterion)
-    # ########### ##### Test Best Checkpoint ##################
-
-
-if __name__ == '__main__':
-    args_parser = argparse.ArgumentParser('LMAFormer inference script', parents=[get_args_parser()])
-    parsed_args = args_parser.parse_args()
-    # import ipdb; ipdb.set_trace()
-    if parsed_args.dec_multiscale in ['yes', 'true', 1, 'on']:
-        parsed_args.dec_multiscale = True
-    else:
-        parsed_args.dec_multiscale = False
-    if parsed_args.pretrain_settings is not None:
-        parsed_args.pretrain_settings = parse_argdict(parsed_args.pretrain_settings)
-    else:
-        parsed_args.pretrain_settings = {}
-    params_summary = '%s_%s_%s_df%d_enc%s_dec%s_t%dv%df%0.1f_lr%0.1e_%0.1e_aux%0.1f_ep%02d' % (
-        datetime.datetime.today().strftime('%Y%m%d%H%M%S'),
-        parsed_args.model_name,
-        parsed_args.backbone,
-        parsed_args.dim_feedforward,
-        str(re.sub('[ |,|\'|(|)]', '', str(parsed_args.enc_layers))),
-        str(parsed_args.dec_layers),
-        parsed_args.train_size, parsed_args.val_size, parsed_args.num_frames,
-        parsed_args.lr, parsed_args.lr_backbone,
-        parsed_args.aux_loss,
-        parsed_args.epochs
-        )
-    print('params_summary:%s' % params_summary)
-    parsed_args.experiment_name = parsed_args.experiment_name.replace('{params_summary}', params_summary)
-    print('parsed_args.experiment_name: %s' % parsed_args.experiment_name)
-    output_path = os.path.join(parsed_args.output_dir, parsed_args.dataset_name,parsed_args.experiment_name)
-    parsed_args.output_dir = output_path  # 在此处创建了输出路径
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-    parsed_args.log_file = str(os.path.join(output_path, 'out.log'))
-    logging.basicConfig(
-        filename=os.path.join(output_path, 'out.log'),
-        format='%(asctime)s %(levelname)s %(module)s-%(lineno)d: %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-    )
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logger.debug(parsed_args)
-    logger.debug('output_dir: ' + str(output_path))
-    logger.debug('experiment_name:%s' % parsed_args.experiment_name)
-    logger.debug('log file: ' + str(os.path.join(parsed_args.output_dir, 'out.log')))
-    if parsed_args.use_wandb:
-        wandb_id_file_path = pathlib.Path(os.path.join(output_path, parsed_args.experiment_name + '_wandb.txt'))
-        config = init_or_resume_wandb_run(wandb_id_file_path,
-                                          entity_name=parsed_args.wandb_user,
-                                          project_name=parsed_args.wandb_project,
-                                          run_name=parsed_args.experiment_name,
-                                          config=parsed_args)
-        logger.debug("Initialized Wandb")
-    main(parsed_args)
-    logger.debug('Finished training...')
+    from MFIRSTD.models.lmaf_swin import build_model_lmaf_swinbackbone_without_criterion as build_model
+    model, _ = build_model(args)
+    return model
+    
