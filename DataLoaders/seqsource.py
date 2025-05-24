@@ -47,8 +47,33 @@ class SeqSource(CacheDataset):
         return self.read_img(index)
 
 if __name__ == '__main__':
+    def are_all_images_same(imgs):
+        """
+        判断 imgs 中所有图片是否相同
+        
+        参数:
+            imgs: numpy.ndarray, 形状为 (b, h, w) 的图片数组
+            
+        返回:
+            bool: 如果所有图片相同返回 True，否则返回 False
+        """
+        if len(imgs) == 0:
+            return True  # 空数组视为所有图片相同
+        
+        first_img = imgs[0]
+        for img in imgs[1:]:
+            if not np.array_equal(first_img, img):
+                return False
+        return True
     root = '/home/greek/files/Video_structure/dataset/NUDT-MIRSDT'
     txtpath = os.path.join(root , 'train.txt')
     txts = np.loadtxt(txtpath, dtype=bytes).astype(str)
-    img_source = SeqSource(root=root,imgs_arr=txts,img_size=(512,512),cache=True,cache_type="ram")
-    
+    img_source = SeqSource(root=root,imgs_arr=txts,cache=True,cache_type="ram")
+    import cv2
+    for source in img_source:
+        print(are_all_images_same(source[0]))
+        for img in source[0]:
+            cv2.imshow("test",img/255.)
+            cv2.waitKey(10)
+        break
+        

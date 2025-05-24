@@ -4,7 +4,7 @@ from torch import nn
 class DTUMNet(nn.Module):
     def __init__(self, net, in_channel=1,num_classes=1):
         super(DTUMNet, self).__init__()
-
+        
         self.UNet = SingleNet(model_name=net,in_channel=in_channel,num_classes=32)
         self.DTUM = DTUM(32, num_classes, num_frames=5)
 
@@ -95,7 +95,7 @@ class DTUM(nn.Module):    # final version
         x_4 = self.relu(self.bn4_1(torch.abs(self.conv4_1(xp_3 * self.direction(ind)))))
 
         o_3 = self.relu(self.bn3_2(self.conv3_2(torch.cat([self.up(x_4),x_3], dim=1))))
-        o_2 = self.relu(self.bn2_2(self.conv2_2(torch.cat([self.up(o_3),x_2], dim=1)))).detach()
+        o_2 = self.relu(self.bn2_2(self.conv2_2(torch.cat([self.up(o_3),x_2], dim=1))))
         o_1 = self.relu(self.bn1_2(self.conv1_2(torch.cat([self.up(o_2),x_1], dim=1))))
 
         x_out = self.final(torch.cat([o_1, torch.unsqueeze(x[:,:,-1,:,:],2)], dim=1))

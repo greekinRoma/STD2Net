@@ -13,6 +13,7 @@ class SingleNet(nn.Module):
     def __init__(self, model_name,in_channel,num_classes):
         super(SingleNet, self).__init__()
         self.model_name = model_name
+        print(model_name)
         if model_name == 'ACM':
             self.model = ACM(in_channels=in_channel,classes=num_classes)
         elif model_name == 'ALCNet':
@@ -26,7 +27,7 @@ class SingleNet(nn.Module):
         elif model_name == 'RDIAN':
             self.model = RDIAN(in_channels=in_channel)
         elif model_name == 'ISTDU_Net':
-            self.model = ISTDU_Net(in_channels=in_channel)
+            self.model = ISTDU_Net(num_classes=num_classes)
         elif model_name == 'res_UNet':
             self.model = res_UNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':

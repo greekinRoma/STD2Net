@@ -72,7 +72,7 @@ class Trainer(object):
                     outputs[0] = outputs[0][0]
             elif isinstance(outputs, tuple):
                 outputs = outputs[0]
-
+            
             if 'DNANet' in args.model:
                 loss = 0
                 if isinstance(outputs, list):

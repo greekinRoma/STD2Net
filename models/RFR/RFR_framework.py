@@ -10,7 +10,7 @@ from ..single_frame import SingleNet
 class RFR(nn.Module):
     def __init__(self,
                  mid_channels=16,
-                 net_name=None):
+                 head_name='ResUnet'):
 
         super(RFR, self).__init__()
         self.mid_channels = mid_channels
@@ -28,17 +28,8 @@ class RFR(nn.Module):
             2 * mid_channels, mid_channels, 3, 1, 1)
         
         ### detection_head
-        self.detection_head = SingleNet(model_name=net_name,in_channel=mid_channels,num_classes=1)
-
+        self.detection_head = SingleNet(head_name,in_channel=mid_channels,num_classes=1)
     def forward(self, lqs):
-        """Forward function for BasicVSR++.
-
-        Args:
-            lqs (tensor): Input sequence with shape (n, t, c, h, w).
-
-        Returns:
-            Tensor: Output sequence with shape (n, t, 1, h, w).
-        """
 
         n, t, c, h, w = lqs.size()
 
@@ -64,12 +55,25 @@ class RFR(nn.Module):
         for i in range(0, t):
             fea = torch.cat([feats[i], feat_props[i]], dim=1)
             fea = self.fusion(fea)
-            out = self.detection_head(fea)
+            out = self.detection_head(fea).sigmoid()
             outputs.append(out) 
-        x_out = outputs[-1]
-        Old_Feat = outputs[1:]
-        Old_Feat = torch.stack(Old_Feat,dim=2)
-        return x_out,Old_Feat
+        return torch.stack(outputs, dim=1)
+
+    def forward_test(self, lq, feat_prop):
+        feat_current = self.feat_extract(lq)
+        
+        if feat_prop == None:
+            feat_prop = feat_current
+        else:
+            feat_prop = self.deform_align(feat_prop, feat_current)
+        feat_prop = self.spatio_temporal_fusion(feat_prop, feat_current)
+        
+        fea = torch.cat([feat_current, feat_prop], dim=1)
+        fea = self.fusion(fea)
+        out = self.detection_head(fea).sigmoid()
+        
+        return out, feat_prop
+    
     
 class TSFM(nn.Module):
     """Temporal Spatial Attention (TSA) fusion module.
