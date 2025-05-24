@@ -8,7 +8,6 @@ def load_and_normalize_image(path, size=None):
     return np.array(img, dtype=np.float32)
 
 def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
-    os.remove(output_folder)
     os.makedirs(output_folder, exist_ok=True)
 
     # 获取并排序所有图像路径
@@ -53,6 +52,9 @@ def get_immediate_subfolders(folder):
 
 subfolders = get_immediate_subfolders('dataset/NUDT-MIRSDT')
 for folder in subfolders:
+    os.remove(os.path.join(folder,'Mix'))
+    os.remove(os.path.join(folder,'Mix_masks'))
+    os.remove(os.path.join(folder,'Mix_masks_centroid'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'images'),output_folder=os.path.join(folder,'Mix'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks'),output_folder=os.path.join(folder,'Mix_masks'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks_centroid'),output_folder=os.path.join(folder,'Mix_masks_centroid'))
