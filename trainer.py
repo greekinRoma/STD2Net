@@ -61,6 +61,7 @@ class Trainer(object):
         loss_last = 0.0
         self.net.train()
         for i, data in enumerate(tqdm(self.train_loader), 0):
+            
             if i % args.training_rate != 0:
                 continue
             SeqData_t, TgtData_t, m, n = data
@@ -70,7 +71,7 @@ class Trainer(object):
             if "RFR" in args.model:
                 loss = self.criterion(outputs,TgtData.float())
             else:
-                TgtData = TgtData[:,-1:]
+                TgtData = TgtData[:,:,-1:]
                 if isinstance(outputs, list):
                     if isinstance(outputs[0], tuple):
                         outputs[0] = outputs[0][0]
@@ -94,7 +95,6 @@ class Trainer(object):
                 loss_50 = running_loss - loss_last
                 loss_last = running_loss
                 print('model: %s, epoch=%d, i=%d, loss.item=%.10f' % (args.model + args.loss_func, epoch, i, loss_50))
-
         self.epoch_loss = running_loss / i * self.Gain
         print('model: %s, epoch: %d, loss: %.10f' % (args.model + args.loss_func, epoch + 1, self.epoch_loss))
         ########################################

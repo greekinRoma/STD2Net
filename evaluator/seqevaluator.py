@@ -50,9 +50,9 @@ class SeqEvaluator():
                 if isinstance(outputs, tuple):
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
-                outputs = torch.squeeze(outputs, 2)
+                outputs = torch.squeeze(outputs, 1)
                 output=outputs[:,-1,:m,:n]
-                target=TgtData[:,0,:m,:n]
+                target=TgtData[:,-1,:m,:n]
                 self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
                 pixelsNumBatch.append(np.array(m*n))
@@ -108,7 +108,7 @@ class SeqEvaluator():
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 2)
                 output=outputs[:,-1,:m,:n]
-                target=TgtData[:,0,:m,:n]
+                target=TgtData[:,-1,:m,:n]
                 self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
                 pixelsNumBatch.append(np.array(m*n))

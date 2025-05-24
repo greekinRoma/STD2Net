@@ -57,7 +57,7 @@ class RFR(nn.Module):
             fea = self.fusion(fea)
             out = self.detection_head(fea)
             outputs.append(out) 
-        return torch.stack(outputs, dim=1)
+        return torch.stack(outputs, dim=2)
 
     def forward_test(self, lq, feat_prop):
         feat_current = self.feat_extract(lq)

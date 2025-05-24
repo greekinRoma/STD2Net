@@ -30,34 +30,38 @@ class Focal_Loss(nn.Module):
 
 
 class SoftIoULoss(nn.Module):
-    def __init__(self,gamma=0, alpha=None, size_average=False):
+    def __init__(self):
         super(SoftIoULoss, self).__init__()
-        self.gamma=gamma
-        self.alpha=alpha
-        self.size_average=size_average
-        if isinstance(alpha, (float, int)): self.alpha=torch.Tensor([alpha(0), alpha(1)])
-        # if isinstance(alpha, (float, int)): self.alpha = torch.Tensor(alpha)
-        if isinstance(alpha, list): self.alpha=torch.Tensor(alpha)
-
-    def forward(self, pred, target):
-        if pred.dim() > 4:
-            pred = torch.squeeze(pred, 2)
-
-        # Old One
-        pred = torch.sigmoid(pred)
-        smooth = 1
-
-        intersection = pred * target
-        loss = (intersection.sum() + smooth) / (pred.sum() + target.sum() - intersection.sum() + smooth)
-
-        # loss = (intersection.sum(axis=(1, 2, 3)) + smooth) / \
-        #        (pred.sum(axis=(1, 2, 3)) + target.sum(axis=(1, 2, 3))
-        #         - intersection.sum(axis=(1, 2, 3)) + smooth)
-
-        loss = 1 - loss.mean()
-        # loss = (1 - loss).mean()
-
-        return loss
+    def forward(self, preds, gt_masks):
+        preds = torch.sigmoid(preds)
+        if isinstance(preds, list) or isinstance(preds, tuple):
+            loss_total = 0
+            for i in range(len(preds)):
+                pred = preds[i]
+                smooth = 1
+                intersection = pred * gt_masks
+                loss = (intersection.sum() + smooth) / (pred.sum() + gt_masks.sum() -intersection.sum() + smooth)
+                loss = 1 - loss.mean()
+                loss_total = loss_total + loss
+            return loss_total / len(preds)
+        elif len(preds.shape)>4:
+            loss_total = 0
+            for i in range(preds.shape[2]):
+                pred = preds[:,:,i,:,:]
+                gt_mask = gt_masks[:,:,i,:,:]
+                smooth = 1
+                intersection = pred * gt_mask
+                loss = (intersection.sum() + smooth) / (pred.sum() + gt_mask.sum() -intersection.sum() + smooth)
+                loss = 1 - loss.mean()
+                loss_total = loss_total + loss
+            return loss_total / preds.shape[2]
+        else:
+            pred = preds
+            smooth = 1
+            intersection = pred * gt_masks
+            loss = (intersection.sum() + smooth) / (pred.sum() + gt_masks.sum() -intersection.sum() + smooth)
+            loss = 1 - loss.mean()
+            return loss
 
 
 
