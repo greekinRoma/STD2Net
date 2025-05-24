@@ -37,7 +37,7 @@ def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
                 img = all_images[j]
             stack.append(img)
 
-        stack_array = np.stack(stack, axis=-1)  # [H, W, 5]
+        stack_array = np.stack(stack, axis=0)  
         save_path = os.path.join(output_folder, os.path.basename(image_files[i]).replace('.png','.mat'))
         savemat(save_path, {'data': stack_array})
         print(f"Saved: {save_path}")
@@ -60,5 +60,5 @@ for folder in subfolders:
         shutil.rmtree(os.path.join(folder,'Mix_masks_centroid'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'images'),output_folder=os.path.join(folder,'Mix'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks'),output_folder=os.path.join(folder,'Mix_masks'))
-    create_right_aligned_stacks(folder_path=os.path.join(folder,'masks_centroid'),output_folder=os.path.join(folder,'Mix_masks_centroid'))
+    # create_right_aligned_stacks(folder_path=os.path.join(folder,'masks_centroid'),output_folder=os.path.join(folder,'Mix_masks_centroid'))
 

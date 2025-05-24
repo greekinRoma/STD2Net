@@ -24,6 +24,7 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
     if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet','DATransNet']:
         input = SeqData[:, :, -1, :, :].repeat(1, 3, 1, 1)
         outputs = net(input)
+        outputs=outputs.unsqueeze(2)
     elif 'DTUM' in model:
         outputs = net(SeqData, Old_Feat, OldFlag)
     elif 'RFR' in model:

@@ -47,8 +47,8 @@ class SoftIoULoss(nn.Module):
         elif len(preds.shape)>4:
             loss_total = 0
             for i in range(preds.shape[2]):
-                pred = preds[:,:,i,:,:]
-                gt_mask = gt_masks[:,:,i,:,:]
+                pred = preds[:,:,-(i+1),:,:]
+                gt_mask = gt_masks[:,:,-(i+1),:,:]
                 smooth = 1
                 intersection = pred * gt_mask
                 loss = (intersection.sum() + smooth) / (pred.sum() + gt_mask.sum() -intersection.sum() + smooth)
