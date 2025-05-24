@@ -55,7 +55,7 @@ class RFR(nn.Module):
         for i in range(0, t):
             fea = torch.cat([feats[i], feat_props[i]], dim=1)
             fea = self.fusion(fea)
-            out = self.detection_head(fea).sigmoid()
+            out = self.detection_head(fea)
             outputs.append(out) 
         return torch.stack(outputs, dim=1)
 
