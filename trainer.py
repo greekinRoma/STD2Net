@@ -67,22 +67,26 @@ class Trainer(object):
             SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)  # b,t,m,n  // b,1,m.n
             self.optimizer.zero_grad()
             outputs = run_model(self.net, args.model, SeqData, 0, 0)
-            if isinstance(outputs, list):
-                if isinstance(outputs[0], tuple):
-                    outputs[0] = outputs[0][0]
-            elif isinstance(outputs, tuple):
-                outputs = outputs[0]
-            
-            if 'DNANet' in args.model:
-                loss = 0
+            if "RFR" in args.model:
+                loss = self.criterion(output,TgtData.float())
+            else:
+                TgtData = TgtData[:,-1:]
                 if isinstance(outputs, list):
-                    for output in outputs:
-                        loss += self.criterion(output, TgtData.float())
-                    loss /= len(outputs)
+                    if isinstance(outputs[0], tuple):
+                        outputs[0] = outputs[0][0]
+                elif isinstance(outputs, tuple):
+                    outputs = outputs[0]
+                
+                if 'DNANet' in args.model:
+                    loss = 0
+                    if isinstance(outputs, list):
+                        for output in outputs:
+                            loss += self.criterion(output, TgtData.float())
+                        loss /= len(outputs)
+                    else:
+                        loss = self.criterion(outputs, TgtData.float())
                 else:
                     loss = self.criterion(outputs, TgtData.float())
-            else:
-                loss = self.criterion(outputs, TgtData.float())
             loss.backward()
             self.optimizer.step()
             running_loss += loss.item()

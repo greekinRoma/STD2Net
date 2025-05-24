@@ -2,12 +2,13 @@ import os
 import numpy as np
 from PIL import Image
 from scipy.io import savemat
-
+import shutil
 def load_and_normalize_image(path, size=None):
     img = Image.open(path).convert('L')  # 灰度图
     return np.array(img, dtype=np.float32)
 
 def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
+    os.remove(output_folder)
     os.makedirs(output_folder, exist_ok=True)
 
     # 获取并排序所有图像路径
@@ -38,7 +39,7 @@ def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
             stack.append(img)
 
         stack_array = np.stack(stack, axis=-1)  # [H, W, 5]
-        save_path = os.path.join(output_folder, f"stack_{i:03d}.mat")
+        save_path = os.path.join(output_folder, f"{i:05d}.mat")
         savemat(save_path, {'data': stack_array})
         print(f"Saved: {save_path}")
 import os

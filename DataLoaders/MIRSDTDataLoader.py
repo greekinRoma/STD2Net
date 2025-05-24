@@ -23,6 +23,7 @@ class TrainSetLoader(Dataset):
         self.cache_type = cache_type
         self.fullSupervision = fullSupervision
         self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,cache=self.cache,cache_type=self.cache_type)
+        txts = self.seqs_arr
         if self.fullSupervision:
             txts = [txt.replace('Mix', 'Mix_masks') for txt in txts]
         else:
@@ -32,7 +33,6 @@ class TrainSetLoader(Dataset):
         self.train_mean = 105.4025
         self.train_std = 26.6452
     def read_img(self, index):
-        LabelData_Img = self.img_datasets[index]/255.0
         # Mix preprocess
         MixData_Img = (self.seq_datasets[index] - self.train_mean)/self.train_std
         MixData_out = torch.from_numpy(MixData_Img)
