@@ -48,7 +48,7 @@ class TrainSetLoader(Dataset):
             MixData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
             TgtData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = TgtData_out
             MixData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = MixData_out
-        return MixData_out_1, TgtData_out, m_L, n_L
+        return MixData_out_1, TgtData_out_1, m_L, n_L
     def __getitem__(self, index):
        return self.read_img(index)
     def __len__(self):

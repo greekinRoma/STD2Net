@@ -33,7 +33,7 @@ class SeqSource(CacheDataset):
     def read_img(self, index):
         file_path = os.path.join(self.root,self.imgs_arr[index])
         MixData_mat = scio.loadmat(file_path)
-        MixData_Img = MixData_mat.get('Mix')
+        MixData_Img = MixData_mat.get('data')
         MixData_Img = MixData_Img.astype(np.float32)
         MixData = MixData_Img[-self.frame_num:,:,:]
         MixData_out = np.expand_dims(MixData, 0)

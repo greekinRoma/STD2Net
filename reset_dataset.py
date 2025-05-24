@@ -38,7 +38,7 @@ def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
             stack.append(img)
 
         stack_array = np.stack(stack, axis=-1)  # [H, W, 5]
-        save_path = os.path.join(output_folder, f"{i:05d}.mat")
+        save_path = os.path.join(output_folder, os.path.basename(image_files[i]).replace('.png','.mat'))
         savemat(save_path, {'data': stack_array})
         print(f"Saved: {save_path}")
 import os
@@ -53,11 +53,11 @@ def get_immediate_subfolders(folder):
 subfolders = get_immediate_subfolders('dataset/NUDT-MIRSDT')
 for folder in subfolders:
     if os.path.exists(os.path.join(folder,'Mix')):
-        os.remove(os.path.join(folder,'Mix'))
+        shutil.rmtree(os.path.join(folder,'Mix'))
     if os.path.exists(os.path.join(folder,'Mix_masks')):
-        os.remove(os.path.join(folder,'Mix_masks'))
+        shutil.rmtree(os.path.join(folder,'Mix_masks'))
     if os.path.exists(os.path.join(folder,'Mix_masks_centroid')):
-        os.remove(os.path.join(folder,'Mix_masks_centroid'))
+        shutil.rmtree(os.path.join(folder,'Mix_masks_centroid'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'images'),output_folder=os.path.join(folder,'Mix'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks'),output_folder=os.path.join(folder,'Mix_masks'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks_centroid'),output_folder=os.path.join(folder,'Mix_masks_centroid'))
