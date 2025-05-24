@@ -52,9 +52,12 @@ def get_immediate_subfolders(folder):
 
 subfolders = get_immediate_subfolders('dataset/NUDT-MIRSDT')
 for folder in subfolders:
-    os.remove(os.path.join(folder,'Mix'))
-    os.remove(os.path.join(folder,'Mix_masks'))
-    os.remove(os.path.join(folder,'Mix_masks_centroid'))
+    if os.path.exists(os.path.join(folder,'Mix')):
+        os.remove(os.path.join(folder,'Mix'))
+    if os.path.exists(os.path.join(folder,'Mix_masks')):
+        os.remove(os.path.join(folder,'Mix_masks'))
+    if os.path.exists(os.path.join(folder,'Mix_masks_centroid')):
+        os.remove(os.path.join(folder,'Mix_masks_centroid'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'images'),output_folder=os.path.join(folder,'Mix'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks'),output_folder=os.path.join(folder,'Mix_masks'))
     create_right_aligned_stacks(folder_path=os.path.join(folder,'masks_centroid'),output_folder=os.path.join(folder,'Mix_masks_centroid'))
