@@ -23,37 +23,30 @@ class TrainSetLoader(Dataset):
         self.cache_type = cache_type
         self.fullSupervision = fullSupervision
         self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,cache=self.cache,cache_type=self.cache_type)
-        txts = [txt.replace('.mat', '.png') for txt in self.seqs_arr]
         if self.fullSupervision:
-            txts = [txt.replace('Mix', 'masks') for txt in txts]
+            txts = [txt.replace('Mix', 'Mix_masks') for txt in txts]
         else:
-            txts = [txt.replace('Mix', 'masks_centroid') for txt in txts]
+            txts = [txt.replace('Mix', 'Mix_masks_centroid') for txt in txts]
         self.imgs_arr = txts
-        self.img_datasets = ImgSource(root=root,imgs_arr=self.imgs_arr,cache=self.cache,cache_type=self.cache_type)
+        self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,cache=self.cache,cache_type=self.cache_type)
         self.train_mean = 105.4025
         self.train_std = 26.6452
     def read_img(self, index):
         LabelData_Img = self.img_datasets[index]/255.0
-        [m_L, n_L] = np.shape(LabelData_Img)
         # Mix preprocess
         MixData_Img = (self.seq_datasets[index] - self.train_mean)/self.train_std
         MixData_out = torch.from_numpy(MixData_Img)
-
-        
+        TgtData_out = torch.from_numpy(self.img_datasets[index]/255.0)
+        _,_,m_L,n_L = TgtData_out.shape
         if m_L == self.img_heigh and n_L == self.img_width:
             # Tgt preprocess
-            LabelData = torch.from_numpy(LabelData_Img)
-            TgtData_out = torch.unsqueeze(LabelData, 0)
             return MixData_out, TgtData_out, m_L, n_L
-
         else:
             # Tgt preprocess
             [n, t, m_M, n_M] = shape(MixData_out)
-            LabelData_Img_1 = np.zeros([self.img_heigh,self.img_width])
-            LabelData_Img_1[0:m_L, 0:n_L] = LabelData_Img
-            LabelData = torch.from_numpy(LabelData_Img_1)
-            TgtData_out = torch.unsqueeze(LabelData, 0)
+            TgtData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
             MixData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
+            TgtData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = TgtData_out
             MixData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = MixData_out
         return MixData_out_1, TgtData_out, m_L, n_L
     def __getitem__(self, index):
