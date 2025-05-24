@@ -36,17 +36,17 @@ class TrainSetLoader(Dataset):
         # Mix preprocess
         MixData_Img = (self.seq_datasets[index] - self.train_mean)/self.train_std
         MixData_out = torch.from_numpy(MixData_Img)
-        TgtData_out = torch.from_numpy(self.img_datasets[index]/255.0)
-        _,_,m_L,n_L = TgtData_out.shape
+        TgtData_out = torch.from_numpy(self.img_datasets[index]/255.0).float()
+        a,b,m_L,n_L = TgtData_out.shape
         if m_L == self.img_heigh and n_L == self.img_width:
             # Tgt preprocess
             return MixData_out, TgtData_out, m_L, n_L
         else:
             # Tgt preprocess
             [n, t, m_M, n_M] = shape(MixData_out)
-            TgtData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
-            MixData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
-            TgtData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = TgtData_out
+            TgtData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width]).float()
+            MixData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width]).float()
+            TgtData_out_1[0:a, 0:b, 0:m_L, 0:n_L] = TgtData_out
             MixData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = MixData_out
         return MixData_out_1, TgtData_out_1, m_L, n_L
     def __getitem__(self, index):
@@ -88,14 +88,17 @@ class TestSetLoader(Dataset):
             LabelData = torch.from_numpy(LabelData_Img)
             TgtData_out = torch.unsqueeze(LabelData, 0)
             return MixData_out, TgtData_out, m_L, n_L
+
         else:
             # Tgt preprocess
             [n, t, m_M, n_M] = shape(MixData_out)
+            LabelData_Img_1 = np.zeros([self.img_heigh,self.img_width])
+            LabelData_Img_1[0:m_L, 0:n_L] = LabelData_Img
+            LabelData = torch.from_numpy(LabelData_Img_1)
+            TgtData_out = torch.unsqueeze(LabelData, 0)
             MixData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
-            TgtData_out_1 = torch.zeros([n,t,self.img_heigh,self.img_width])
-            TgtData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = TgtData_out
             MixData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = MixData_out
-        return MixData_out_1, TgtData_out_1, m_L, n_L
+        return MixData_out_1, TgtData_out, m_L, n_L
     def __getitem__(self, index):
        return self.read_img(index)
     def __len__(self):

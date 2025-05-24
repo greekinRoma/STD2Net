@@ -66,9 +66,9 @@ class Trainer(object):
             SeqData_t, TgtData_t, m, n = data
             SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)  # b,t,m,n  // b,1,m.n
             self.optimizer.zero_grad()
-            outputs = run_model(self.net, args.model, SeqData, 0, 0)
+            outputs = run_model(self.net, args.model, SeqData.float(), 0, 0)
             if "RFR" in args.model:
-                loss = self.criterion(output,TgtData.float())
+                loss = self.criterion(outputs,TgtData.float())
             else:
                 TgtData = TgtData[:,-1:]
                 if isinstance(outputs, list):

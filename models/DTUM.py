@@ -24,7 +24,6 @@ class DTUMNet(nn.Module):
                 x_t = self.UNet(x_t)
                 x_t = torch.unsqueeze(x_t, 2)
                 Features = torch.cat([x_t, Features], 2)
-
         X_Out = self.DTUM(Features)
 
         Old_Feat = Features[:,:,1:,:,:]
@@ -95,7 +94,7 @@ class DTUM(nn.Module):    # final version
         x_4 = self.relu(self.bn4_1(torch.abs(self.conv4_1(xp_3 * self.direction(ind)))))
 
         o_3 = self.relu(self.bn3_2(self.conv3_2(torch.cat([self.up(x_4),x_3], dim=1))))
-        o_2 = self.relu(self.bn2_2(self.conv2_2(torch.cat([self.up(o_3),x_2], dim=1))))
+        o_2 = self.relu(self.bn2_2(self.conv2_2(torch.cat([self.up(o_3),x_2], dim=1)))).detach()
         o_1 = self.relu(self.bn1_2(self.conv1_2(torch.cat([self.up(o_2),x_1], dim=1))))
 
         x_out = self.final(torch.cat([o_1, torch.unsqueeze(x[:,:,-1,:,:],2)], dim=1))
