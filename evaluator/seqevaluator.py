@@ -108,7 +108,7 @@ class SeqEvaluator():
                 if isinstance(outputs, tuple):
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
-                outputs = torch.squeeze(outputs, 2)
+                outputs = torch.squeeze(outputs, 1)
                 output=outputs[:,-1,:m,:n]
                 target=TgtData[:,-1,:m,:n]
                 self.mIou.update(preds=output,labels=target)
