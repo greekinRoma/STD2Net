@@ -5,7 +5,7 @@ from scipy.io import savemat
 import shutil
 def load_and_normalize_image(path, size=None):
     img = Image.open(path).convert('L')  # 灰度图
-    return np.array(img, dtype=np.float32)
+    return np.array(img, dtype=np.int8)
 
 def create_right_aligned_stacks(folder_path, output_folder, stack_size=5):
     os.makedirs(output_folder, exist_ok=True)
