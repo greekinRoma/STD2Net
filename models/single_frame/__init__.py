@@ -12,8 +12,6 @@ from torch import nn
 class SingleNet(nn.Module):
     def __init__(self, model_name,in_channel,num_classes):
         super(SingleNet, self).__init__()
-        self.model_name = model_name
-        print(model_name)
         if model_name == 'ACM':
             self.model = ACM(in_channels=in_channel,classes=num_classes)
         elif model_name == 'ALCNet':
@@ -31,8 +29,8 @@ class SingleNet(nn.Module):
         elif model_name == 'res_UNet':
             self.model = res_UNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':
-            self.model = SDecNet(n_classes=num_classes,n_channels=in_channel)
+            self.model = SDecNet(n_classes=1,n_channels=1)
         elif model_name =='DATransNet':
-            self.model = DATransNet(n_classes=in_channel,n_channels=num_classes)
+            self.model = DATransNet(n_classes=1,n_channels=1)
     def forward(self, img):
         return self.model(img)

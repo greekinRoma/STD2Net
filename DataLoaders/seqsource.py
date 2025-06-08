@@ -18,8 +18,6 @@ class SeqSource(CacheDataset):
         self.imgs_arr = imgs_arr
         self.cache = cache
         self.cache_type = cache_type
-        self.train_mean = 105.4025
-        self.train_std = 26.6452
         self.num_imgs = len(self.imgs_arr)
         super().__init__(
             input_dimension=(512,512),
@@ -37,6 +35,7 @@ class SeqSource(CacheDataset):
         MixData_Img = MixData_Img.astype(np.float32)
         MixData = MixData_Img[-self.frame_num:,:,:]
         MixData_out = np.expand_dims(MixData, 0)
+
         return MixData_out
     def __len__(self):
         return len(self.imgs_arr)
