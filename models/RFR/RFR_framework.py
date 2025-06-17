@@ -30,9 +30,7 @@ class RFR(nn.Module):
         ### detection_head
         self.detection_head = SingleNet(head_name,in_channel=mid_channels,num_classes=1)
     def forward(self, lqs):
-
         n, t, c, h, w = lqs.size()
-
         feats_ = self.feat_extract(lqs.view(-1, c, h, w))
         h, w = feats_.shape[2:]
         feats_ = feats_.view(n, t, -1, h, w)

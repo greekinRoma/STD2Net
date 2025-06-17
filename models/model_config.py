@@ -4,16 +4,15 @@ from .DTUM import DTUMNet
 from .RFR.RFR_framework import RFR
 def model_chose(model, loss_func, SpatialDeepSup):
     num_classes = 1
-    print(model)
     if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet',"DATransNet","ACM"]:
         net = SingleNet(model_name=model,in_channel=3,num_classes=1)
     elif 'DTUM' in model:
-        model = model.strip('DTUM_')
+        model = model[5:]
         if model == "AC":
             model = "ACM"
         net = DTUMNet(model,in_channel=1)
     elif 'RFR' in model:
-        model = model.strip('RFR_')
+        model = model[4:]
         net = RFR(head_name=model)
     else:
         raise

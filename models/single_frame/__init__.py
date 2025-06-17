@@ -18,19 +18,17 @@ class SingleNet(nn.Module):
             self.model = ALCNet(in_channels=in_channel,num_classes=num_classes)
         elif model_name == 'AGPCNet':
             self.model = AGPCNet(in_channels=in_channel)
-        elif model_name == 'ISTDU-Net':
-            self.model = ISTDU_Net(in_channels=in_channel)
         elif model_name == 'DNANet':
             self.model = DNANet(in_channels=in_channel)
         elif model_name == 'RDIAN':
             self.model = RDIAN(in_channels=in_channel)
         elif model_name == 'ISTDU_Net':
-            self.model = ISTDU_Net(num_classes=num_classes)
+            self.model = ISTDU_Net(in_channels=in_channel,num_classes=num_classes)
         elif model_name == 'res_UNet':
             self.model = res_UNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':
-            self.model = SDecNet(n_classes=1,n_channels=1)
+            self.model = SDecNet(n_classes=num_classes,n_channels=in_channel)
         elif model_name =='DATransNet':
-            self.model = DATransNet(n_classes=1,n_channels=1)
+            self.model = DATransNet(n_classes=num_classes,n_channels=in_channel)
     def forward(self, img):
         return self.model(img)

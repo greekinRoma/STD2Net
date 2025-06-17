@@ -39,9 +39,9 @@ def parse_args():
     parser.add_argument('--MaxClutterNum', type=int, default=39, help='Clutter samples in loss [default: 39]')
     parser.add_argument('--ProtectedArea', type=int, default=2,  help='1,2,3...')
     # GPU
-    parser.add_argument('--DataParallel',     default=False,    help='Use one gpu or more')
-    parser.add_argument('--availble_devices',type=str,default='0,1',help='availble devices')
-    parser.add_argument('--device', type=str, default="cuda:0", help='use comma for multiple gpus')
+    parser.add_argument('--DataParallel',     default=True,    help='Use one gpu or more')
+    parser.add_argument('--availble_devices',type=str,default='2,3',help='availble devices')
+    parser.add_argument('--device', type=str, default="cuda:2", help='use comma for multiple gpus')
     # Excel 
     parser.add_argument('--useExcel', default=True, help='Do we use excel setting?')
     args = parser.parse_args()
@@ -67,7 +67,6 @@ if __name__ == '__main__':
         main_dir = r'./'
         set_dict = read_excel(os.path.join(main_dir, 'input.xlsx'), 'input')
         args=generate_args(args=args,set_dict=set_dict,is_read_excel=args.useExcel)
-        torch.cuda.set_device(0)
         myexp = MyExp(args,train_dataset=train_dataset,val_dataset=val_dataset)
         trainer = Trainer(myexp)
         trainer.launch()
