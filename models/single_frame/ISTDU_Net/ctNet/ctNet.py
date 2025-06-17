@@ -143,7 +143,7 @@ class ISTDU_Net(miNet):
         #
         # self.up = UPCt(channels=[256,128,64,32])
 
-        self.down = Down(inp_channels=inp_channels,channels=[16, 32, 64, 128])
+        self.down = Down(inp_channels=in_channels,channels=[16, 32, 64, 128])
         # self.up = lambda x:x
         # self.up = UP(num_classes=num_classes, s=0.125)
         self.up = UPCt(channels=[512, 256,128,64])

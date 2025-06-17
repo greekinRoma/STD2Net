@@ -16,6 +16,7 @@ class SDecP(nn.Module):
                          ])
         self.num_layer = 3
         self.max_pool = nn.MaxPool2d((2,2))
+        self.avg_pool = nn.AvgPool2d((2,2))
         self.kernel = torch.from_numpy(kernel).float().cuda().view(-1,1,2,2)
         self.kernels = self.kernel.repeat(self.hidden_channels,1,1,1)
         self.origin_conv = nn.Sequential(

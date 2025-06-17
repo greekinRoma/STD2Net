@@ -21,30 +21,33 @@ class SDecM(nn.Module):
         kernel=np.concatenate([delta1,delta2],axis=0)
         self.kernel = torch.from_numpy(kernel).float().cuda()
         self.kernels = self.kernel.repeat(self.hidden_channels,1,1,1)
-        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.in_channels,kernel_size=1,stride=1),
-                                      nn.BatchNorm2d(self.in_channels))
+        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
+                                      nn.BatchNorm2d(self.hidden_channels),
+                                      nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.in_channels,kernel_size=1,stride=1))
         self.basis_convs = nn.ModuleList()
         self.origin_convs = nn.ModuleList()
         self.num_layer = 8
         self.down_layer = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
                                         nn.BatchNorm2d(self.hidden_channels))
         self.origin_conv = nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False)
+        self.max_pool = nn.MaxPool2d(kernel_size=3,stride=1,padding=1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=3,stride=1,padding=1)
     def Extract_layer(self,cen,b,w,h):
-        basises = []
-        cen = self.down_layer(cen)
-        origin = self.origin_conv(cen)
+        basises = [(self.max_pool(cen)-self.avg_pool(cen)).view(b,self.hidden_channels,1,-1)]
+        origin = self.origin_conv(cen).view(b,self.hidden_channels,1,-1)
         for i in range(len(self.shifts)):
             basis = torch.nn.functional.conv2d(weight=self.kernels,stride=1,padding="same",input=cen,groups=self.hidden_channels,dilation=self.shifts[i])
-            basises.append(basis)
+            basises.append(basis.view(b,self.hidden_channels,self.num_layer,-1))
         origin=origin.view(b,self.hidden_channels,1,-1)
-        basis1 = torch.stack(basises,dim=2)
-        basis2 = torch.nn.functional.normalize(basis1.view(b,self.hidden_channels,self.num_layer*self.num_shift,-1),dim=-1)
+        basis1 = torch.concat(basises,dim=2)
+        basis2 = torch.nn.functional.normalize(basis1,dim=-1)
         basis1 = basis2.transpose(-2,-1)
         weight_score = torch.matmul(origin,basis1)
         out = torch.matmul(weight_score,basis2).view(b,self.hidden_channels,w,h)
         return out
     def forward(self,cen):
         b,_,w,h= cen.shape
+        cen = self.down_layer(cen)
         out = self.Extract_layer(cen,b,w,h)
         out = self.out_conv(out)
         return out

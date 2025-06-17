@@ -40,8 +40,8 @@ def parse_args():
     parser.add_argument('--ProtectedArea', type=int, default=2,  help='1,2,3...')
     # GPU
     parser.add_argument('--DataParallel',     default=True,    help='Use one gpu or more')
-    parser.add_argument('--availble_devices',type=str,default='2,3',help='availble devices')
-    parser.add_argument('--device', type=str, default="cuda:2", help='use comma for multiple gpus')
+    parser.add_argument('--availble_devices',type=str,default='1,2,3',help='availble devices')
+    parser.add_argument('--device', type=str, default="cuda:1", help='use comma for multiple gpus')
     # Excel 
     parser.add_argument('--useExcel', default=True, help='Do we use excel setting?')
     args = parser.parse_args()

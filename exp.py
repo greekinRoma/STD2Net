@@ -27,7 +27,7 @@ class MyExp():
         torch.cuda.set_device(args.device)
         self.net = self.net.to(self.device)
         if args.DataParallel:
-            self.net = nn.DataParallel(self.net,device_ids=[2,3])  #, device_ids=[0,1,2]).cuda()
+            self.net = nn.DataParallel(self.net,device_ids=[1,2,3])  #, device_ids=[0,1,2]).cuda()
         
         self.optimizer = optim.Adam(self.net.parameters(), lr=args.lrate, betas=(0.9, 0.99))
         self.scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5, last_epoch=-1)
