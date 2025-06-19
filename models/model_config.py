@@ -2,6 +2,7 @@ import torch
 from .single_frame import SingleNet
 from .DTUM import DTUMNet
 from .RFR.RFR_framework import RFR
+from .STDecNet.STDecNet import STDecNet
 def model_chose(model, loss_func, SpatialDeepSup):
     num_classes = 1
     if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet',"DATransNet","ACM"]:
@@ -14,6 +15,8 @@ def model_chose(model, loss_func, SpatialDeepSup):
     elif 'RFR' in model:
         model = model[4:]
         net = RFR(head_name=model)
+    elif model == "STDecNet":
+        net = STDecNet(mid_channel=32,num_frame=5)
     else:
         raise
     return net
@@ -29,4 +32,6 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
     elif 'RFR' in model:
         input = SeqData.transpose(2,1)
         outputs = net(input)
+    elif model == "STDecNet":
+        outputs = net(SeqData)
     return outputs
