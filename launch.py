@@ -33,14 +33,13 @@ def parse_args():
     parser.add_argument('--evalepoch',type=int, default=1)
     parser.add_argument('--lrate',     type=float, default=0.001)
     # parser.add_argument('--lrate_min', type=float, default=1e-5)
-
     # loss
     parser.add_argument('--MyWgt',     default=[0.1667, 0.8333], help='Weights of positive and negative samples')
     parser.add_argument('--MaxClutterNum', type=int, default=39, help='Clutter samples in loss [default: 39]')
     parser.add_argument('--ProtectedArea', type=int, default=2,  help='1,2,3...')
     # GPU
     parser.add_argument('--DataParallel',     default=True,    help='Use one gpu or more')
-    parser.add_argument('--availble_devices',type=str,default='1,2,3',help='availble devices')
+    parser.add_argument('--availble_devices',type=str,default='1,2',help='availble devices')
     parser.add_argument('--device', type=str, default="cuda:1", help='use comma for multiple gpus')
     # Excel 
     parser.add_argument('--useExcel', default=True, help='Do we use excel setting?')

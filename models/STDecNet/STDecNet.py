@@ -1,4 +1,5 @@
 from torch import nn
+import torch
 from .TDecM import TDecM
 from .SDecNet.segmentation import SDecNet
 class STDecNet(nn.Module):
@@ -11,6 +12,7 @@ class STDecNet(nn.Module):
         features = []
         for i in range(self.num_frame):
             features.append(self.single_model(inp[:,:,i]))
+        features = torch.stack(features,dim=2)
         out = self.multi_model(features)
         out = out[:,None,:,:,:]
         return out
