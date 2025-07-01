@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io as scio
 from .seqsource import SeqSource
 from .imgsource import ImgSource
-class TrainSetLoader(Dataset):
+class SeqSetLoader(Dataset):
     def __init__(self, root, fullSupervision=False,cache=True,cache_type="ram",):
         txtpath = root + 'train.txt'
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
@@ -55,7 +55,7 @@ class TrainSetLoader(Dataset):
         return len(self.imgs_arr)
 
 class TestSetLoader(Dataset):
-    def __init__(self, root, fullSupervision=False,cache=True,cache_type="ram",):
+    def __init__(self, root, fullSupervision=True,cache=True,cache_type="ram",):
         txtpath = root + 'test.txt'
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
         #读取train.txt文件
@@ -75,11 +75,13 @@ class TestSetLoader(Dataset):
         else:
             txts = [txt.replace('Mix', 'masks_centroid') for txt in txts]
         self.imgs_arr = txts
-        self.img_datasets = ImgSource(root=root,imgs_arr=self.imgs_arr,cache=self.cache,cache_type=self.cache_type)
+        self.maks_datasets = ImgSource(root=root,imgs_arr=self.imgs_arr,cache=self.cache,cache_type=self.cache_type)
         self.train_mean = 105.4025
         self.train_std = 26.6452
     def read_img(self, index):
-        LabelData_Img = self.img_datasets[index]/255.0
+        LabelData_Img = self.maks_datasets[index]/255.0
+        # print(LabelData_Img.shape)
+        # print(np.sum(LabelData_Img))
         [m_L, n_L] = np.shape(LabelData_Img)
         MixData_Img = (self.seq_datasets[index] - self.train_mean)/self.train_std
         MixData_out = torch.from_numpy(MixData_Img)

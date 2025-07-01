@@ -3,7 +3,7 @@ from .single_frame import SingleNet
 from .DTUM import DTUMNet
 from .RFR.RFR_framework import RFR
 from .STDecNet.STDecNet import STDecNet
-def model_chose(model, loss_func, SpatialDeepSup):
+def model_chose(model, loss_func=None, SpatialDeepSup=None):
     num_classes = 1
     if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet',"DATransNet","ACM"]:
         net = SingleNet(model_name=model,in_channel=1,num_classes=1)

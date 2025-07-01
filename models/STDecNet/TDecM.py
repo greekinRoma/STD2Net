@@ -23,6 +23,7 @@ class TDecM(nn.Module):
     def forward(self,inp):
         b,c,_,h,w = inp.shape
         origin = self.origin(inp.view(b,-1,h,w)).view(b,self.mid_channels,1,h*w)
+        origin = origin + torch.rand_like(origin)
         basis = [inp[:,:,-1]-inp[:,:,0],inp[:,:,-1]-inp[:,:,1],inp[:,:,-1]-inp[:,:,2],inp[:,:,-1]-inp[:,:,3],inp[:,:,-1]-(inp[:,:,0]+inp[:,:,1]+inp[:,:,2]+inp[:,:,3])/4]
         basis = torch.stack(basis,dim=2).view(b,self.mid_channels,self.num_frames,h*w)
         basis1 = torch.nn.functional.normalize(basis,dim=-1)

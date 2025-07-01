@@ -5,7 +5,7 @@ import argparse
 import os
 import time
 from setting.read_setting import generate_args,read_excel,begin_excel,finish_excel
-from DataLoaders.MIRSDTDataLoader import TrainSetLoader, TestSetLoader
+from DataLoaders.MIRSDTDataLoader import SeqSetLoader, TestSetLoader
 def parse_args():
     """Training Options for Segmentation Experiments"""
     parser = argparse.ArgumentParser(description='Infrared_target_detection_overall')
@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
 
     # train
-    parser.add_argument('--model',     type=str, default='SDiffTransNet',
+    parser.add_argument('--model',     type=str, default='SDecNet',
                         help='ResUNet_DTUM, DNANet_DTUM, ACM, ALCNet, ResUNet, DNANet, ISNet, UIU')
     parser.add_argument('--loss_func', type=str, default='fullySup',
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
@@ -52,8 +52,8 @@ def setloader(args):
     train_path =args.DataPath + args.dataset + '/'
     test_path = train_path
     if args.dataset == 'NUDT-MIRSDT':
-        train_dataset = TrainSetLoader(train_path, fullSupervision=args.fullySupervised)
-        val_dataset = TestSetLoader(test_path)
+        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised)
+        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised)
     else:
         raise
     return train_dataset,val_dataset

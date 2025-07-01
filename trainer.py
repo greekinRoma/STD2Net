@@ -15,6 +15,7 @@ from write_results import writeNUDTMIRSDT_ROC, writeIRSeq_ROC
 from exp import MyExp
 import copy 
 from torch.autograd import Variable
+import shutil
 class Trainer(object):
     def __init__(self, exp:MyExp):
         self.args = exp.args
@@ -166,12 +167,12 @@ class Trainer(object):
         self.saveloss()
         print('finished training!')
         if self.args.test == 1:
-
             model = torch.load(self.logger.get_best_path(), map_location=self.device)
             self.net.load_state_dict(model)
             self.net.eval()
             mIoU,Auc,Pd,Fa,Pds,Fas = self.evaluator.get_final_result(self.net)
             self.logger.write_final(Pd,Fa,Auc,mIoU,Pds,Fas)
+            shutil.copy(self.logger.get_best_path(),os.path.join(os.path.dirname(self.logger.get_best_path()),'best.pth'))
             
     
 

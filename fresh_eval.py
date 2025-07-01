@@ -1,6 +1,5 @@
 import torch 
 from torch import nn
-from evaluator.seqevaluator import SeqEvaluator
 import os
 from launch import parse_args,setloader
 from exp import MyExp
@@ -12,7 +11,8 @@ if __name__ == '__main__':
     evaluator = myexp.evaluator
     result_dir = './results'
     for file_name in os.listdir(result_dir):
-        model_name = file_name.split('_')[0]
+        model_names = ["res_UNet"]
+        model_name = "_".join(model_names)
         pth_file_path = os.path.join('./logs',model_name)
         txt_file_path = os.path.join(result_dir,file_name)
         # print(len(os.listdir(file_path)))

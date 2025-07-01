@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from models.model_config import model_chose
 from torch.utils.data import DataLoader
-from DataLoaders.MIRSDTDataLoader import TrainSetLoader, TestSetLoader
+from DataLoaders.MIRSDTDataLoader import SeqSetLoader, TestSetLoader
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from losses import loss_chose
@@ -27,7 +27,7 @@ class MyExp():
         torch.cuda.set_device(args.device)
         self.net = self.net.to(self.device)
         if args.DataParallel:
-            self.net = nn.DataParallel(self.net,device_ids=[1,2,3])  #, device_ids=[0,1,2]).cuda()
+            self.net = nn.DataParallel(self.net,device_ids=[1,2])  #, device_ids=[0,1,2]).cuda()
         
         self.optimizer = optim.Adam(self.net.parameters(), lr=args.lrate, betas=(0.9, 0.99))
         self.scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5, last_epoch=-1)
@@ -73,8 +73,8 @@ class MyExp():
         return ModelPath, ParameterPath, SavePath
     def setloader(self):
         if self.args.dataset == 'NUDT-MIRSDT':
-            train_dataset = TrainSetLoader(self.train_path, fullSupervision=self.args.fullySupervised)
-            val_dataset = TestSetLoader(self.test_path)
+            train_dataset = SeqSetLoader(self.train_path, fullSupervision=self.args.fullySupervised)
+            val_dataset = TestSetLoader(self.test_path, fullSupervision=self.args.fullySupervised)
         else:
             raise
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)

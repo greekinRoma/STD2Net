@@ -51,7 +51,9 @@ class SeqEvaluator():
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 1)
+                TgtData = torch.squeeze(TgtData,1)
                 # print(TgtData.shape)
+                # # print(TgtData.shape)
                 output=outputs[:,-1,:m,:n]
                 target=TgtData[:,-1,:m,:n]
                 self.mIou.update(preds=output,labels=target)
@@ -109,8 +111,10 @@ class SeqEvaluator():
                     Old_Feat = outputs[1]
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 1)
+                TgtData = torch.squeeze(TgtData,1)
                 output=outputs[:,-1,:m,:n]
                 target=TgtData[:,-1,:m,:n]
+
                 self.mIou.update(preds=output,labels=target)
                 Outputs_Max = torch.sigmoid(outputs)
                 pixelsNumBatch.append(np.array(m*n))
@@ -135,8 +139,9 @@ class SeqEvaluator():
         mIoU = self.get_mIou()
         return mIoU,Auc,Pd,Fa,Pds,Fas
     def refresh_result(self,model_name,pth_path,SpatialDeepSup=True):
-        model_weights = torch.load(pth_path,self.device)
+        model_weights = torch.load(pth_path,self.device,weights_only=True)
         model = model_chose(model_name,loss_func=None,SpatialDeepSup=SpatialDeepSup)
+        model = torch.nn.DataParallel(model,device_ids=[1,2])
         model.to(self.device)
         model.load_state_dict(model_weights)
         mIoU,Auc,Pd,Fa,Pds,Fas = self.get_final_result(model)

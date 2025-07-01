@@ -41,7 +41,11 @@ def batch_intersection_union(output, target):
     area_pred,  _  = np.histogram(predict.cpu(), bins=nbins, range=(mini, maxi))
     area_lab,   _  = np.histogram(target.cpu(), bins=nbins, range=(mini, maxi))
     area_union     = area_pred + area_lab - area_inter
-
+    # print(area_union)
+    # print(area_lab)
+    # print(area_pred)
+    # print(torch.sum(target))
+    # print(area_inter)
     assert (area_inter <= area_union).all(), \
         "Error: Intersection area should be smaller than Union area"
     return area_inter, area_union
