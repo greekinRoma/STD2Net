@@ -73,8 +73,8 @@ class MyExp():
         return ModelPath, ParameterPath, SavePath
     def setloader(self):
         if self.args.dataset == 'NUDT-MIRSDT':
-            train_dataset = SeqSetLoader(self.train_path, fullSupervision=self.args.fullySupervised)
-            val_dataset = TestSetLoader(self.test_path, fullSupervision=self.args.fullySupervised)
+            train_dataset = SeqSetLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
+            val_dataset = SeqSetLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
         else:
             raise
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)

@@ -52,8 +52,8 @@ def setloader(args):
     train_path =args.DataPath + args.dataset + '/'
     test_path = train_path
     if args.dataset == 'NUDT-MIRSDT':
-        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised)
-        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised)
+        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised,mode='train')
+        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised,mode='test')
     else:
         raise
     return train_dataset,val_dataset

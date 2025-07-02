@@ -8,8 +8,8 @@ import scipy.io as scio
 from .seqsource import SeqSource
 from .imgsource import ImgSource
 class SeqSetLoader(Dataset):
-    def __init__(self, root, fullSupervision=False,cache=True,cache_type="ram",):
-        txtpath = root + 'train.txt'
+    def __init__(self, root,mode='train', fullSupervision=False,cache=True,cache_type="ram",):
+        txtpath = root + f'{mode}.txt'
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
         #读取train.txt文件
         self.seqs_arr = txt
