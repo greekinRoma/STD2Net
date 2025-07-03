@@ -24,4 +24,4 @@ if __name__ == '__main__':
         shutil.copy(pth_file_path,sav_file_path)
         mIoU,Auc,Pd,Fa,Pds,Fas=evaluator.refresh_result(model_name=model_name,pth_path=pth_file_path,SpatialDeepSup=args.SpatialDeepSup)
         with open(txt_file_path,'a') as f:
-            f.write(f'\nFinal Epoch:mIou:{mIoU*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*100000:.2f},AUC:{Auc*100:.2f}')
+            f.write(f'\nFinal Epoch:mIou:{mIoU*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*1000000:.2f},AUC:{Auc*100:.2f}')

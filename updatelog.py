@@ -29,9 +29,9 @@ if __name__ == '__main__':
         log_dir = os.path.join(args.logsDir,args.model)
         SavePath = args.saveDir + args.model + '_SpatialDeepSup' + str(args.SpatialDeepSup) + '_' + args.loss_func + '/'
         logger = Logger(log_dir,SavePath)
-        # if args.DataParallel:
-        #     net = nn.DataParallel(net,device_ids=[1,2])
-        #     pass
+        if args.DataParallel:
+            net = nn.DataParallel(net,device_ids=[1,2])
+            pass
         for epoch,pth_name in enumerate(os.listdir(model_path)):
             if pth_name.endswith('pth'):
                 pth_path = os.path.join(model_path,pth_name)
