@@ -8,9 +8,8 @@ class TDecM(nn.Module):
         self.mid_channels = mid_channels
         self.num_class = num_class
         
-        self.origin = nn.Sequential(nn.Conv2d(in_channels=mid_channels*num_frames,out_channels=mid_channels,stride=1,kernel_size=1),
-                                      nn.BatchNorm2d(mid_channels),
-                                      nn.Conv2d(in_channels=mid_channels,out_channels=mid_channels,kernel_size=1,stride=1))
+        self.origin = nn.Sequential(nn.Conv2d(in_channels=mid_channels*num_frames,out_channels=mid_channels,stride=1,kernel_size=1,bias=False))
+        self.transfer = nn.Sequential(nn.Conv2d(in_channels=mid_channels,out_channels=mid_channels,kernel_size=1,stride=1))
         self.out_conv = nn.Sequential(nn.Conv2d(in_channels=mid_channels,out_channels=mid_channels,stride=1,kernel_size=1),
                                       nn.BatchNorm2d(mid_channels),
                                       nn.ReLU(),
@@ -22,7 +21,9 @@ class TDecM(nn.Module):
             nn.Conv2d(kernel_size=1,stride=1,in_channels=mid_channels,out_channels=mid_channels))
     def forward(self,inp):
         b,c,_,h,w = inp.shape
-        origin = self.origin(inp.view(b,-1,h,w)).view(b,self.mid_channels,1,h*w)
+        origin = self.origin(inp.view(b,-1,h,w))
+        origin = self.transfer(origin)
+        origin = origin.view(b,self.mid_channels,1,h*w)
         basis = [inp[:,:,-1]-inp[:,:,0],inp[:,:,-1]-inp[:,:,1],inp[:,:,-1]-inp[:,:,2],inp[:,:,-1]-inp[:,:,3],inp[:,:,-1]-(inp[:,:,0]+inp[:,:,1]+inp[:,:,2]+inp[:,:,3])/4]
         basis = torch.stack(basis,dim=2).view(b,self.mid_channels,self.num_frames,h*w)
         basis1 = torch.nn.functional.normalize(basis,dim=-1)
