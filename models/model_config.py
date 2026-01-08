@@ -1,7 +1,7 @@
 import torch
 from .single_frame import SingleNet
 from .DTUM import DTUMNet
-from .RFR.RFR_framework import RFR
+# from .RFR.RFR_framework import RFR
 from .STDecNet.STDecNet import STDecNet
 def model_chose(model, loss_func=None, SpatialDeepSup=None):
     num_classes = 1
