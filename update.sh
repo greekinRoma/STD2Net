@@ -1,6 +1,7 @@
+unset proxy_https 
 unset proxy_http
-unset proxy_https
 unset all_proxy
-git add * 
-git commit -m "update"
+git add *
+git commit -m update_files
 git push origin master
+echo "Files updated and pushed to remote repository."
