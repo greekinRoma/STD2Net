@@ -1,6 +1,6 @@
 unset proxy_http
 unset proxy_https
-unset proxy_all
+unset all_proxy
 git add * 
 git commit -m "update"
 git push origin master
