@@ -17,7 +17,7 @@ def begin_excel(loc,sheet_name):
     assert excel.empty!=True ,'Input is Empty!!!!!!!!!!!!!'
     dir_name=os.path.dirname(loc)
     writer=pd.ExcelWriter(os.path.join(dir_name,'save.xlsx'))
-    excel.to_excel(writer,'save',index=False)
+    excel.to_excel(writer,sheet_name='save',index=False)
     writer._save()
     writer.close()
 def finish_excel(loc,sheet_name):
@@ -29,7 +29,7 @@ def finish_excel(loc,sheet_name):
     content=excel.head(1)
     finishes_excel=finishes_excel._append(content)
     writer=pd.ExcelWriter(os.path.join(dir_name,'finish.xlsx'))
-    finishes_excel.to_excel(writer, 'finish', index=False)
+    finishes_excel.to_excel(writer, sheet_name='finish', index=False)
     writer._save()
     writer.close()
     #
