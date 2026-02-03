@@ -27,7 +27,7 @@ def finish_excel(loc,sheet_name):
     excel = pd.read_excel(loc, sheet_name=sheet_name)
     finishes_excel=pd.read_excel(os.path.join(dir_name,'finish.xlsx'))
     content=excel.head(1)
-    finishes_excel=finishes_excel._append(content)
+    finishes_excel=pd.concat([finishes_excel,content],ignore_index=True)
     writer=pd.ExcelWriter(os.path.join(dir_name,'finish.xlsx'))
     finishes_excel.to_excel(writer, sheet_name='finish', index=False)
     writer._save()
