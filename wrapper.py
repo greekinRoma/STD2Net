@@ -156,7 +156,7 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
         self.cache = cache
         self.cache_type = cache_type
         if self.cache and self.cache_type == "disk":
-            self.cache_dir = os.path.join(data_dir, cache_dir_name)
+            self.cache_dir = os.path.join(data_dir, cache_dir_name, path_filename)
             self.path_filename = path_filename
 
         if self.cache and self.cache_type == "ram":
@@ -255,7 +255,7 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
                     self.imgs[i] = x
                 else:   # 'disk'
                     # cache_filename = f'{self.path_filename[i].split(".")[0]}.npy'
-                    cache_path_filename = os.path.join(self.cache_dir,self.path_filename, f'{i}.npy')
+                    cache_path_filename = os.path.join(self.cache_dir, f'{i}.npy')
                     os.makedirs(os.path.dirname(cache_path_filename), exist_ok=True)
                     np.save(cache_path_filename, x)
                 b += x.nbytes
@@ -292,7 +292,7 @@ def cache_read_img(use_cache=True):
                 elif self.cache_type == "disk":
                     img = np.load(
                         os.path.join(
-                            self.cache_dir,self.path_filename, f"{index}.npy"),allow_pickle=True
+                            self.cache_dir, f"{index}.npy"),allow_pickle=True
                     )
                 else:
                     raise ValueError(f"Unknown cache type: {self.cache_type}")
