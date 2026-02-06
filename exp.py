@@ -2,7 +2,8 @@ import torch
 from torch import nn
 from models.model_config import model_chose
 from torch.utils.data import DataLoader
-from DataLoaders.MIRSDTDataLoader import SeqSetLoader, TestSetLoader
+from DataLoaders.MIRSDTDataLoader import MIRSDTDataLoader
+from DataLoaders.IRDSTDataLoader import IRDSTDataLoader
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from losses import loss_chose
@@ -12,7 +13,7 @@ import time
 from logger.logger import Logger
 from evaluator.seqevaluator import SeqEvaluator
 class MyExp():
-    def __init__(self,args,train_dataset,val_dataset):
+    def __init__(self,args):
         self.args = args
         # GPU
         self.device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -43,8 +44,7 @@ class MyExp():
         ########### data ############
         self.train_path = self.args.DataPath + self.args.dataset + '/'
         self.test_path = self.train_path
-        self.train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)
-        self.val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, )
+        self.resetloader()
         ########### save ############
         self.ModelPath, self.ParameterPath, self.SavePath = self.generate_savepath( 0, 0)
         self.test_save = self.SavePath[0:-1] + '_visualization/'
@@ -74,8 +74,11 @@ class MyExp():
         return ModelPath, ParameterPath, SavePath
     def setloader(self):
         if self.args.dataset == 'NUDT-MIRSDT':
-            train_dataset = SeqSetLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
-            val_dataset = SeqSetLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
+            train_dataset = MIRSDTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
+            val_dataset = MIRSDTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
+        elif self.args.dataset == 'IRDST':
+            train_dataset = IRDSTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
+            val_dataset = IRDSTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
         else:
             raise
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)

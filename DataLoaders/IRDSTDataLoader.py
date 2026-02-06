@@ -7,14 +7,14 @@ import numpy as np
 import scipy.io as scio
 from .seqsource import SeqSource
 from wrapper import CacheDataset,cache_read_img
-class MIRSDTDataLoader(CacheDataset):
+class IRDSTDataLoader(CacheDataset):
     def __init__(self, root,mode='train', fullSupervision=False,use_cache=True,cache_type="ram",num_frames=5):
         txtpath = root + f'{mode}.txt'
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
         #读取train.txt文件
         self.seqs_arr = txt
         self.root = root
-        img_size = (512,512)
+        img_size = (256,256)
         self.frame_num = num_frames
         self.img_size = img_size
         self.img_heigh = self.img_size[0]
@@ -31,8 +31,6 @@ class MIRSDTDataLoader(CacheDataset):
             txts = [txt.replace('Mix', 'Mix_masks_centroid') for txt in txts]
         self.imgs_arr = txts
         self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,use_cache=self.use_cache,cache_type=self.cache_type)
-        self.train_mean = 105.4025
-        self.train_std = 26.6452
         super().__init__(
             input_dimension=self.img_size,
             num_imgs=self.num_imgs,

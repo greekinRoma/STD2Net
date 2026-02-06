@@ -5,7 +5,6 @@ import argparse
 import os
 import time
 from setting.read_setting import generate_args,read_excel,begin_excel,finish_excel
-from DataLoaders.MIRSDTDataLoader import SeqSetLoader, TestSetLoader
 def parse_args():
     """Training Options for Segmentation Experiments"""
     parser = argparse.ArgumentParser(description='Infrared_target_detection_overall')
@@ -49,28 +48,15 @@ def parse_args():
     # the parser
     return args
 
-def setloader(args):
-    train_path =args.DataPath + args.dataset + '/'
-    test_path = train_path
-    if args.dataset == 'NUDT-MIRSDT':
-        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised,mode='train')
-        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised,mode='test')
-    elif args.dataset == 'IRDST':
-        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised,mode='train')
-        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised,mode='test')
-    else:
-        raise
-    return train_dataset,val_dataset
 
 if __name__ == '__main__':
     args = parse_args()
     begin_excel(r'input.xlsx', 'input')
-    train_dataset,val_dataset = setloader(args)
     while(True):
         main_dir = r'./'
         set_dict = read_excel(os.path.join(main_dir, 'input.xlsx'), 'input')
         args=generate_args(args=args,set_dict=set_dict,is_read_excel=args.useExcel)
-        myexp = MyExp(args,train_dataset=train_dataset,val_dataset=val_dataset)
+        myexp = MyExp(args)
         trainer = Trainer(myexp)
         trainer.launch()
         finish_excel(r'./input.xlsx','input')
