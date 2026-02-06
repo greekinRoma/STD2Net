@@ -84,7 +84,7 @@ class Head(nn.Module):
     def forward(self, x):
         return self.out_conv(torch.concat([self.head(x),x],dim=1))
 class SDecNet(nn.Module):
-    def __init__(self,  n_channels=1, n_classes=1, img_size=512, vis=False, mode='train', deepsuper=True):
+    def __init__(self,  n_channels=1, n_classes=1, img_size=512, vis=False, mode='train', deepsuper=True, is_multi_frames=False):
         super().__init__()
         self.vis = vis
         self.deepsuper = deepsuper
@@ -138,5 +138,8 @@ class SDecNet(nn.Module):
         d3 = self.decoder3(d4, c3, x3)
         d2 = self.decoder2(d3, c2, x2)
         d1 = self.decoder1(d2, c1, x1)
-        out = self.outc(self.unet2(d1)+c1)
+        if self.is_multi_frames:
+            out = self.outc(d1+x1)
+        else:
+            out = self.outc(self.unet2(d1)+c1)
         return out
