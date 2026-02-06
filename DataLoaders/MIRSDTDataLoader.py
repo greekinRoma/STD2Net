@@ -20,10 +20,10 @@ class MIRSDTDataLoader(CacheDataset):
         self.img_size = img_size
         self.img_heigh = self.img_size[0]
         self.img_width = self.img_size[1]
-        self.use_cache = use_cache
+        self.cache = use_cache
         self.cache_type = cache_type
         self.fullSupervision = fullSupervision
-        self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,use_cache=self.use_cache,cache_type=self.cache_type)
+        self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,use_cache=True,img_size=self.img_size)
         txts = self.seqs_arr
         self.num_imgs = len(self.seqs_arr)
         if self.fullSupervision:
@@ -31,7 +31,7 @@ class MIRSDTDataLoader(CacheDataset):
         else:
             txts = [txt.replace('Mix', 'Mix_masks_centroid') for txt in txts]
         self.imgs_arr = txts
-        self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,use_cache=self.use_cache,cache_type=self.cache_type)
+        self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,use_cache=True,img_size=self.img_size)
         self.train_mean = 105.4025
         self.train_std = 26.6452
         super().__init__(
@@ -43,24 +43,7 @@ class MIRSDTDataLoader(CacheDataset):
             cache=use_cache,
             cache_type=cache_type
         )
-    def read_img_without_cache(self, index):
-        # Mix preprocess
-        MixData_Img = (self.seq_datasets[index]-self.train_mean)/self.train_std
-        MixData_out = MixData_Img.astype(np.float32)
-        # Tgt preprocess
-        TgtData_out = (self.img_datasets[index]/255.0).astype(np.float32)
-        a,b,m_L,n_L = TgtData_out.shape
-        if m_L == self.img_heigh and n_L == self.img_width:
-            # Tgt preprocess
-            return np.array([MixData_out, TgtData_out, m_L, n_L],dtype=object)
-        else:
-            # Tgt preprocess
-            [n, t, m_M, n_M] = shape(MixData_out)
-            TgtData_out_1 = np.zeros([n,t,self.img_heigh,self.img_width],dtype=np.float32)
-            MixData_out_1 = np.zeros([n,t,self.img_heigh,self.img_width],dtype=np.float32)
-            TgtData_out_1[0:a, 0:b, 0:m_L, 0:n_L] = TgtData_out
-            MixData_out_1[0:n, 0:t, 0:m_M, 0:n_M] = MixData_out
-        return np.array([MixData_out_1, TgtData_out_1, m_L, n_L],dtype=object)
+
     @cache_read_img(use_cache=True)
     def read_img(self, index):
         # Mix preprocess

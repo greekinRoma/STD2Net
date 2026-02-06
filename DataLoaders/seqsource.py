@@ -2,23 +2,32 @@ import os
 import numpy as np
 import scipy.io as scio
 from numpy import *
-class SeqSource():
+from wrapper import CacheDataset,cache_read_img
+class SeqSource(CacheDataset):
     def __init__(
         self,
         root,
         imgs_arr,
+        img_size=(256,256),
         frame_num=5,
-        use_cache=False,
+        use_cache=True,
         cache_type="ram",
     ):
         self.frame_num = frame_num
         self.root = root
         self.imgs_arr = imgs_arr
-        self.use_cache = use_cache
+        self.cache = use_cache
         self.cache_type = cache_type
         self.num_imgs = len(self.imgs_arr)
+        super().__init__(
+            input_dimension=img_size,
+            num_imgs=self.num_imgs,
+            cache=use_cache,
+            cache_type=cache_type
+        )
     def __len__(self):
         return self.num_imgs
+    @cache_read_img(use_cache=True)
     def read_img(self, index):
         file_path = os.path.join(self.root,self.imgs_arr[index])
         MixData_mat = scio.loadmat(file_path)
@@ -29,6 +38,7 @@ class SeqSource():
         return MixData_out
     def _input_dim(self):
         return self.img_size
+    @CacheDataset.mosaic_getitem
     def __getitem__(self, index):
         return self.read_img(index)
 

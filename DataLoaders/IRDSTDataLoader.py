@@ -19,10 +19,10 @@ class IRDSTDataLoader(CacheDataset):
         self.img_size = img_size
         self.img_heigh = self.img_size[0]
         self.img_width = self.img_size[1]
-        self.use_cache = use_cache
+        self.cache = use_cache
         self.cache_type = cache_type
         self.fullSupervision = fullSupervision
-        self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,use_cache=self.use_cache,cache_type=self.cache_type)
+        self.seq_datasets = SeqSource(root=root,imgs_arr=self.seqs_arr,frame_num=self.frame_num,use_cache=False)
         txts = self.seqs_arr
         self.num_imgs = len(self.seqs_arr)
         if self.fullSupervision:
@@ -30,7 +30,7 @@ class IRDSTDataLoader(CacheDataset):
         else:
             txts = [txt.replace('Mix', 'Mix_masks_centroid') for txt in txts]
         self.imgs_arr = txts
-        self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,use_cache=self.use_cache,cache_type=self.cache_type)
+        self.img_datasets = SeqSource(root=root,imgs_arr=self.imgs_arr,use_cache=False)
         super().__init__(
             input_dimension=self.img_size,
             num_imgs=self.num_imgs,

@@ -183,15 +183,6 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
         """
         raise NotImplementedError
     
-    @abstractmethod
-    def read_img_without_cache(self, index):
-        """
-        Given index, return the corresponding image
-
-        Args:
-            index (int): image index
-        """
-        raise NotImplementedError
 
     def cache_images(
         self,
@@ -250,7 +241,7 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
             #     range(num_imgs))
             pbar = tqdm(range(num_imgs), total=num_imgs)
             for i in pbar:   # x = self.read_img(self, i, use_cache=False)
-                x = self.read_img_without_cache(i)
+                x = self.read_img(i, use_cache=False)
                 if self.cache_type == 'ram':
                     self.imgs[i] = x
                 else:   # 'disk'
