@@ -20,7 +20,7 @@ if __name__ == '__main__':
         args.model = model_name
         device = torch.device(args.device if torch.cuda.is_available() else "cpu")
         model_path = os.path.join(main_dir,model_name)
-        net = model_chose(model=model_name,loss_func= args.loss_func, SpatialDeepSup=args.SpatialDeepSup)
+        net = model_chose(model_name=model_name,loss_func= args.loss_func, SpatialDeepSup=args.SpatialDeepSup)
         net = net.to(device)
         train_dataset,val_dataset = setloader(args)
         val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, )

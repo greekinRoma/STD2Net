@@ -10,7 +10,7 @@ def parse_args():
     """Training Options for Segmentation Experiments"""
     parser = argparse.ArgumentParser(description='Infrared_target_detection_overall')
     parser.add_argument('--DataPath',  type=str, default='./dataset/', help='Dataset path [default: ./dataset/]')
-    parser.add_argument('--dataset',   type=str, default='NUDT-MIRSDT', help='Dataset name [dafult: NUDT-MIRSDT]')
+    parser.add_argument('--dataset',   type=str, default='IRDST', help='Dataset name [dafult: NUDT-MIRSDT]')
     parser.add_argument('--align',  default='False', action='store_true', help='align input frames')
     parser.add_argument('--training_rate', type=int, default=1, help='Rate of samples in training (1/n) [default: 1]')
     parser.add_argument('--saveDir',   type=str, default='./results/',
@@ -52,6 +52,9 @@ def setloader(args):
     train_path =args.DataPath + args.dataset + '/'
     test_path = train_path
     if args.dataset == 'NUDT-MIRSDT':
+        train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised,mode='train')
+        val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised,mode='test')
+    elif args.dataset == 'IRDST':
         train_dataset = SeqSetLoader(train_path, fullSupervision=args.fullySupervised,mode='train')
         val_dataset = SeqSetLoader(test_path, fullSupervision=args.fullySupervised,mode='test')
     else:

@@ -49,7 +49,7 @@ def get_immediate_subfolders(folder):
         if os.path.isdir(os.path.join(folder, name))
     ]
 
-subfolders = get_immediate_subfolders('dataset/NUDT-MIRSDT')
+subfolders = get_immediate_subfolders('dataset/IRDST')
 for folder in subfolders:
     if os.path.exists(os.path.join(folder,'Mix')):
         shutil.rmtree(os.path.join(folder,'Mix'))

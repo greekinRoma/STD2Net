@@ -26,6 +26,9 @@ class _FCNHead(nn.Module):
     def forward(self, x):
         return self.block(x)
 
+def conv_1to3(img_gray):
+    img = torch.cat((img_gray, img_gray, img_gray), dim=1)  # 在通道维度上进行拼接，得到[8, 3, 256, 256]
+    return img
 
 class AGPCNet(nn.Module):
     def __init__(self, backbone='resnet18', scales=(10, 6, 5, 3), reduce_ratios=(16, 4), gca_type='patch', gca_att='post',
@@ -62,6 +65,8 @@ class AGPCNet(nn.Module):
     def forward(self, x):
         _, _, hei, wid = x.shape
 
+        x = conv_1to3(x)
+
         c1, c2, c3 = self.backbone(x)
 
         out = self.context(c3)
@@ -77,7 +82,7 @@ class AGPCNet(nn.Module):
         pred = self.head(out)
         out = F.interpolate(pred, size=[hei, wid], mode='bilinear', align_corners=True)
 
-        return out
+        return out.sigmoid()
 
 
 class AGPCNet_Pro(nn.Module):
@@ -128,7 +133,7 @@ class AGPCNet_Pro(nn.Module):
         pred = self.head(out)
         out = F.interpolate(pred, size=[hei, wid], mode='bilinear', align_corners=True)
 
-        return out.sigmoid()
+        return out
 
 
 def agpcnet(backbone, scales, reduce_ratios, gca_type, gca_att, drop):

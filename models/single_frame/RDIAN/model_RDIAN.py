@@ -69,7 +69,6 @@ class RDIAN(nn.Module):
 
     def forward(self, x):
         _, _, hei, wid = x.shape
-        x = x[:,0:1]
         d11 = self.d11(x)
         d12 = self.d12(x)
         d13 = self.d13(x)

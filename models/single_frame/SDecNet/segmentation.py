@@ -138,5 +138,5 @@ class SDecNet(nn.Module):
         d3 = self.decoder3(d4, c3, x3)
         d2 = self.decoder2(d3, c2, x2)
         d1 = self.decoder1(d2, c1, x1)
-        out = self.outc(self.unet2(d1)+x1)
+        out = self.outc(self.unet2(d1)+c1)
         return out

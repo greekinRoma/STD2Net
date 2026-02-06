@@ -318,10 +318,10 @@ class RSU4F(nn.Module):
 ##### UIU-net ####
 class UIUNET(nn.Module):
 
-    def __init__(self, in_ch=1, out_ch=1,mode='test'):
+    def __init__(self, in_ch=1, out_ch=1,supervised=False,mode='test'):
         super(UIUNET, self).__init__()
         self.mode = mode
-        
+        self.supervised = supervised
         self.stage1 = RSU7(in_ch,32,64)
         self.pool12 = nn.MaxPool2d(2,stride=2,ceil_mode=True)
 
@@ -448,6 +448,9 @@ class UIUNET(nn.Module):
         d0 = self.outconv(torch.cat((d1,d2,d3,d4,d5,d6),1))
 
         if self.mode == 'train':
-            return F.sigmoid(d0), F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6)
+            if self.supervised == True:
+                return d0, d1, d2, d3, d4, d5, d6
+            else:
+                return d0
         else:
-            return F.sigmoid(d0)
+            return F

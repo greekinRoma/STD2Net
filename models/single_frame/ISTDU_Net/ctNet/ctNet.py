@@ -9,7 +9,6 @@ from .resnet2020 import ResNet, Bottleneck, ResNetCt, BottleneckMode
 
 class Down(nn.Module):
     def __init__(self,
-                 inp_channels=1,
                  inp_num = 1,
                  layers=[1, 2, 4, 8],
                  channels=[8, 16, 32, 64],
@@ -24,7 +23,8 @@ class Down(nn.Module):
         # stemWidth = int(channels[0])
         stemWidth = int(8)
         self.stem = nn.Sequential(
-            nn.Conv2d(inp_channels, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
+            normLayer(1, affine=False),
+            nn.Conv2d(1, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
             normLayer(stemWidth*2),
             activate()
         )
@@ -134,7 +134,7 @@ class EDN(nn.Module):
         return [x1, x2, x3, x4]
 
 class ISTDU_Net(miNet):
-    def __init__(self,in_channels=1, num_classes=1):
+    def __init__(self, num_classes=1):
         super(ISTDU_Net, self).__init__()
         self.encoder = None
         self.decoder = None
@@ -143,7 +143,7 @@ class ISTDU_Net(miNet):
         #
         # self.up = UPCt(channels=[256,128,64,32])
 
-        self.down = Down(inp_channels=in_channels,channels=[16, 32, 64, 128])
+        self.down = Down(channels=[16, 32, 64, 128])
         # self.up = lambda x:x
         # self.up = UP(num_classes=num_classes, s=0.125)
         self.up = UPCt(channels=[512, 256,128,64])
@@ -151,7 +151,7 @@ class ISTDU_Net(miNet):
         # self.head = Head(inpChannel=32, oupChannel=1)
         # self.headDet = Head(inpChannel=64, oupChannel=1)
 
-        self.headSeg = Head(inpChannel=64, oupChannel=num_classes)
+        self.headSeg = Head(inpChannel=64, oupChannel=1)
         # self.DN = DN()
         self.DN = EDN(channels=[64, 128, 256, 512])
 
@@ -182,3 +182,14 @@ class ISTDU_Net(miNet):
         # return self.head(x)
         # return torch.sigmoid(self.head(x))
         return  self.headSeg(x)
+
+if __name__ == '__main__':
+    # x = torch.rand((3,1,256,256))
+    x = torch.rand((3 ,1 ,512, 512))
+    x = x.to('cuda')
+    model = ctNet()
+    model.to('cuda')
+    pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print("Total_params: {}".format(pytorch_total_params))
+    out = model(x)
+    print(out.shape)
