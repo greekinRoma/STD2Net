@@ -67,12 +67,12 @@ class SeqEvaluator():
                             
         # 计算方法
         #############################################
-        print(np.array(FalseNumBatch).shape)
-        FalseNumAll = np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        print(FalseNumAll.shape)
-        TrueNumAll = np.array(TrueNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
+        # print(np.array(FalseNumBatch).shape)
+        # print(np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).shape)
+        FalseNumAll = np.array(FalseNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        TrueNumAll = np.array(TrueNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        TgtNumAll = np.array(TgtNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        pixelsNumber = np.array(pixelsNumBatch).reshape(1, -1).sum(axis=1)
 
         Pds = self.get_Pd(TrueNumAll,TgtNumAll)
         Fas = self.get_Fa(FalseNumAll,pixelsNumber)
@@ -124,10 +124,10 @@ class SeqEvaluator():
                         TgtNumBatch.append(TgtNum)
         # 计算方法
         #############################################
-        FalseNumAll = np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        TrueNumAll = np.array(TrueNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
-        pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
+        FalseNumAll = np.array(FalseNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        TrueNumAll = np.array(TrueNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        TgtNumAll = np.array(TgtNumBatch).reshape((1, -1, len(Th_Seg))).sum(axis=1)
+        pixelsNumber = np.array(pixelsNumBatch).reshape(1, -1).sum(axis=1)
 
         Pds = self.get_Pd(TrueNumAll,TgtNumAll)
         Fas = self.get_Fa(FalseNumAll,pixelsNumber)

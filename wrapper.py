@@ -234,7 +234,7 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
                 "Caching images...\n"
                 "This might take some time for your dataset"
             )
-            num_threads = min(4, max(1, os.cpu_count() - 1))
+            # num_threads = min(4, max(1, os.cpu_count() - 1))
             b = 0
             # load_imgs = ThreadPool(num_threads).imap(
             #     partial(self.read_img_without_cache),
