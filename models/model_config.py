@@ -23,7 +23,7 @@ def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num
 
 
 def run_model(net, model, SeqData, Old_Feat, OldFlag):
-    if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet','DATransNet']:
+    if model in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet',"DATransNet","ACM","MSHNet","DNANet"]:
         input = SeqData[:, :, -1, :, :]
         outputs = net(input)
         outputs=outputs.unsqueeze(2)
@@ -34,4 +34,6 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
         outputs = net(input)
     elif model == "STDecNet":
         outputs = net(SeqData)
+    else:
+        raise
     return outputs
