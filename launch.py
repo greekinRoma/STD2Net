@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument('--DataParallel',     default=False,    help='Use one gpu or more')
     parser.add_argument('--availble_devices',type=str,default='0',help='availble devices')
     parser.add_argument('--device', type=str, default="cuda:0", help='use comma for multiple gpus')
-    parser.add_argument('--device_id', type=list[int], default=[0] help='which gpu to use')
+    parser.add_argument('--device_id', type=list[int], default=[0], help='which gpu to use')
     # Excel 
     parser.add_argument('--useExcel', default=True, help='Do we use excel setting?')
     args = parser.parse_args()
