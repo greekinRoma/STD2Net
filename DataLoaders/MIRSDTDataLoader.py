@@ -16,7 +16,7 @@ class SeqSetLoader(Dataset):
         self.root = root
         
         self.frame_num = 5
-        self.img_size = (512,512)
+        self.img_size = (150,200)
         self.img_heigh = self.img_size[0]
         self.img_width = self.img_size[1]
         self.cache = cache

@@ -20,15 +20,16 @@ class MyExp():
         self.save_dir = self.args.saveDir
         self.log_dir = os.path.join(self.args.logsDir,self.args.model)
         # model
-        self.loss_func = self.args.loss_func
+        self.loss_func = self.args.loss_func.strip()
+        self.SpatialDeepSup = self.args.SpatialDeepSup
         self.training_rate = self.args.training_rate
-        self.net = model_chose(args.model, args.loss_func, args.SpatialDeepSup)
-        self.net_name = args.model
+        self.net_name = args.model.strip()
+        self.net = model_chose(self.net_name, self.loss_func, self.SpatialDeepSup)
         torch.cuda.set_device(args.device)
         self.net = self.net.to(self.device)
         if args.DataParallel:
-            self.net = nn.DataParallel(self.net,device_ids=[0])  #, device_ids=[0,1,2]).cuda()
-        
+            self.net = nn.DataParallel(self.net,device_ids=args.device_id)
+        # Optimizer
         self.optimizer = optim.Adam(self.net.parameters(), lr=args.lrate, betas=(0.9, 0.99))
         self.scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5, last_epoch=-1)
 
