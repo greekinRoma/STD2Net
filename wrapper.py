@@ -182,6 +182,16 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
             index (int): image index
         """
         raise NotImplementedError
+    
+    @abstractmethod
+    def read_img_without_cache(self, index):
+        """
+        Given index, return the corresponding image
+
+        Args:
+            index (int): image index
+        """
+        raise NotImplementedError
 
     def cache_images(
         self,
@@ -233,18 +243,19 @@ class CacheDataset(Dataset, metaclass=ABCMeta):
                 "Caching images...\n"
                 "This might take some time for your dataset"
             )
-            num_threads = min(8, max(1, os.cpu_count() - 1))
+            num_threads = min(4, max(1, os.cpu_count() - 1))
             b = 0
-            load_imgs = ThreadPool(num_threads).imap(
-                partial(self.read_img, use_cache=False),
-                range(num_imgs))
-            pbar = tqdm(enumerate(load_imgs), total=num_imgs)
-            for i, x in pbar:   # x = self.read_img(self, i, use_cache=False)
+            # load_imgs = ThreadPool(num_threads).imap(
+            #     partial(self.read_img_without_cache),
+            #     range(num_imgs))
+            pbar = tqdm(range(num_imgs), total=num_imgs)
+            for i in pbar:   # x = self.read_img(self, i, use_cache=False)
+                x = self.read_img_without_cache(i)
                 if self.cache_type == 'ram':
                     self.imgs[i] = x
                 else:   # 'disk'
-                    cache_filename = f'{self.path_filename[i].split(".")[0]}.npy'
-                    cache_path_filename = os.path.join(self.cache_dir, cache_filename)
+                    # cache_filename = f'{self.path_filename[i].split(".")[0]}.npy'
+                    cache_path_filename = os.path.join(self.cache_dir,self.path_filename, f'{i}.npy')
                     os.makedirs(os.path.dirname(cache_path_filename), exist_ok=True)
                     np.save(cache_path_filename, x)
                 b += x.nbytes
@@ -281,7 +292,8 @@ def cache_read_img(use_cache=True):
                 elif self.cache_type == "disk":
                     img = np.load(
                         os.path.join(
-                            self.cache_dir, f"{self.path_filename[index].split('.')[0]}.npy"))
+                            self.cache_dir,self.path_filename, f"{index}.npy"),allow_pickle=True
+                    )
                 else:
                     raise ValueError(f"Unknown cache type: {self.cache_type}")
             else:

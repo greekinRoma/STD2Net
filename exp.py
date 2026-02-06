@@ -74,8 +74,8 @@ class MyExp():
         return ModelPath, ParameterPath, SavePath
     def setloader(self):
         if self.args.dataset == 'NUDT-MIRSDT':
-            train_dataset = MIRSDTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
-            val_dataset = MIRSDTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
+            train_dataset = MIRSDTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train',cache_type='disk',data_dir="dataset",cache_dir_name="MIRSDT",path_filename="train")
+            val_dataset = MIRSDTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test',cache_type='disk',data_dir="dataset",cache_dir_name="MIRSDT",path_filename="test")
         elif self.args.dataset == 'IRDST':
             train_dataset = IRDSTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
             val_dataset = IRDSTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')

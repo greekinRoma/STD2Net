@@ -12,6 +12,7 @@ class SeqEvaluator():
         self.model_name = model_name
         self.epochs = epochs
         self.val_loader = val_loader
+        self.img_size = val_loader.dataset.img_size
         self.device = device
         self.eval_metrics = eval_metrics
         self.mIou = mIoU()
@@ -31,7 +32,7 @@ class SeqEvaluator():
         Th_Seg = np.array(
             [0, 1e-1, 0.2, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, 0.8, 0.9, 0.95, 1])
         OldFlag = 0
-        Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
+        Old_Feat = torch.zeros([1,32,4,self.img_size[0],self.img_size[1]]).to(self.device)  # interface for iteration input
         FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
         seg_index = list(Th_Seg).index(0.5)
         for i, data in enumerate(tqdm(self.val_loader), 0):
@@ -52,25 +53,23 @@ class SeqEvaluator():
                     outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 1)
                 TgtData = torch.squeeze(TgtData,1)
-                # print(TgtData.shape)
-                # # print(TgtData.shape)
                 output=outputs[:,-1,:m,:n]
                 target=TgtData[:,-1,:m,:n]
                 self.mIou.update(preds=output,labels=target)
-                # print(outputs.shape)
                 Outputs_Max = torch.sigmoid(outputs)
                 pixelsNumBatch.append(np.array(m*n))
                 
                 for th_i in range(len(Th_Seg)):
                         FalseNum, TrueNum, TgtNum = self.eval_metrics(Outputs_Max[:,:,:m,:n], TgtData[:,:,:m,:n], Th_Seg[th_i])
-                        # print(TrueNum)
                         FalseNumBatch.append(FalseNum)
                         TrueNumBatch.append(TrueNum)
                         TgtNumBatch.append(TgtNum)
                             
         # 计算方法
         #############################################
+        print(np.array(FalseNumBatch).shape)
         FalseNumAll = np.array(FalseNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
+        print(FalseNumAll.shape)
         TrueNumAll = np.array(TrueNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
         TgtNumAll = np.array(TgtNumBatch).reshape((20, -1, len(Th_Seg))).sum(axis=1)
         pixelsNumber = np.array(pixelsNumBatch).reshape(20, -1).sum(axis=1)
@@ -91,7 +90,7 @@ class SeqEvaluator():
              1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, .15, 0.2, .25, 0.3, .35, 0.4, .45, 0.5, .55, 0.6, .65, 0.7, .75,
              0.8, .85, 0.9, 0.95, 0.975, 0.98, 0.99, 0.995, 0.999, 0.9995, 0.9999, 0.99999, 0.999999, 0.9999999, 1])
         OldFlag = 0
-        Old_Feat = torch.zeros([1,32,4,512,512]).to(self.device)  # interface for iteration input
+        Old_Feat = torch.zeros([1,32,self.img_size[0],self.img_size[1]]).to(self.device)  # interface for iteration input
         FalseNumBatch, TrueNumBatch, TgtNumBatch, pixelsNumBatch = [], [], [], []
         seg_index = list(Th_Seg).index(0.5)
         for i, data in enumerate(tqdm(self.val_loader), 0):

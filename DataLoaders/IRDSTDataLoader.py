@@ -40,8 +40,8 @@ class IRDSTDataLoader(CacheDataset):
     @cache_read_img(use_cache=True)
     def read_img(self, index):
         # Mix preprocess
-        MixData_Img = self.seq_datasets[index]
-        MixData_out = MixData_Img.astype(np.float32)/255.0
+        MixData_Img = self.seq_datasets[index]/255.0
+        MixData_out = MixData_Img.astype(np.float32)
         # Tgt preprocess
         TgtData_out = (self.img_datasets[index]/255.0).astype(np.float32)
         a,b,m_L,n_L = TgtData_out.shape
