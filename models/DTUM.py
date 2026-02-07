@@ -2,10 +2,10 @@ import torch
 from .single_frame import SingleNet
 from torch import nn
 class DTUMNet(nn.Module):
-    def __init__(self, net, in_channel=1,num_classes=1):
+    def __init__(self, net, in_channel=1,num_classes=1,img_size=(256,256)):
         super(DTUMNet, self).__init__()
         
-        self.UNet = SingleNet(model_name=net,in_channel=in_channel,num_classes=32)
+        self.UNet = SingleNet(model_name=net,in_channel=in_channel,num_classes=32,is_multi_frames=True,image_size=img_size)
         self.DTUM = DTUM(32, num_classes, num_frames=5)
 
     def forward(self, X_In, Old_Feat, OldFlag):

@@ -3,10 +3,10 @@ from .single_frame import SingleNet
 from .DTUM import DTUMNet
 from .RFR.RFR_framework import RFR
 from .STDecNet.STDecNet import STDecNet
-def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num_classes = 1,num_frame=5):
+def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num_classes = 1,num_frame=5,img_size=(256,256)):
     model_name = model_name.strip()
     if model_name in ['ALCNet','AGPCNet','ISTDU-Net','RDIAN','ISTDU_Net','res_UNet','SDecNet','DNANet',"DATransNet","ACM","MSHNet","DNANet"]:
-        net = SingleNet(model_name=model_name,in_channel=in_channel,num_classes=num_classes)
+        net = SingleNet(model_name=model_name,in_channel=in_channel,num_classes=num_classes,is_multi_frames=False,image_size=img_size)
     elif 'DTUM' in model_name:
         model_name = model_name[5:]
         if model_name == "AC":
@@ -14,7 +14,7 @@ def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num
         net = DTUMNet(model_name,in_channel=in_channel)
     elif 'RFR' in model_name:
         model_name = model_name[4:]
-        net = RFR(head_name=model_name)
+        net = RFR(head_name=model_name,num_classes=num_classes,image_size=img_size,mid_channels=16)
     elif model_name == "STDecNet":
         net = STDecNet(mid_channel=32,num_frame=num_frame)
     else:

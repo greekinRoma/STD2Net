@@ -44,8 +44,6 @@ class SeqEvaluator():
 
             with torch.no_grad():
                 SeqData_t, TgtData_t, m, n = data
-                print(TgtData_t.shape)
-                print(SeqData.shape)
                 SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)
                 outputs = run_model(model, self.model_name, SeqData, Old_Feat, OldFlag)
                 if isinstance(outputs, list):

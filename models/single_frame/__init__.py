@@ -38,7 +38,7 @@ import torch
 from .loss import SoftIoULoss, ISNetLoss, DiceLoss
 from .utils.loss.IRSAM_loss import SigmoidMetric, SamplewiseSigmoidMetric
 class SingleNet(nn.Module):
-    def __init__(self, model_name, mode='test',size=256, in_channel=1, num_classes=1):
+    def __init__(self, model_name, mode='test',size=256, in_channel=1, num_classes=1,is_multi_frames=False,image_size=(256,256)):
         super(SingleNet, self).__init__()
         self.model_name = model_name
         self.softiou_loss = SoftIoULoss()
@@ -86,7 +86,7 @@ class SingleNet(nn.Module):
         elif model_name == 'MSHNet':
             self.model = MSHNet(input_channels=1)
         elif model_name == 'SDecNet':
-            self.model = SDecNet(is_multi_frames=False)
+            self.model = SDecNet(is_multi_frames=is_multi_frames, n_channels=self.in_channel, n_classes=self.num_classes, img_size=size)
         elif model_name == 'SCTransNet':
             self.model = SCTransNet()
         elif model_name == "RPCANet":

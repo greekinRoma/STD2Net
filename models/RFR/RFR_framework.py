@@ -11,6 +11,7 @@ class RFR(nn.Module):
     def __init__(self,
                  mid_channels=16,
                  num_classes=1,
+                 image_size=(256,256),
                  head_name='ResUnet'):
 
         super(RFR, self).__init__()
@@ -29,7 +30,7 @@ class RFR(nn.Module):
             2 * mid_channels, mid_channels, 3, 1, 1)
         
         ### detection_head
-        self.detection_head = SingleNet(head_name,in_channel=mid_channels,num_classes=num_classes)
+        self.detection_head = SingleNet(head_name,in_channel=mid_channels,num_classes=num_classes,is_multi_frames=True,image_size=image_size)
         
     def forward(self, lqs):
         n, t, c, h, w = lqs.size()

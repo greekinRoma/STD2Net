@@ -17,15 +17,22 @@ class MyExp():
         self.args = args
         # GPU
         self.device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-        # path 
-        self.save_dir = self.args.saveDir
-        self.log_dir = os.path.join(self.args.logsDir,self.args.model)
+        # dataloader
+        self.dataset_name = self.args.dataset.strip()
+        self.DataPath = self.args.DataPath
+        self.train_path = os.path.join(self.DataPath,self.dataset_name)
+        self.test_path = self.train_path
+        self.resetloader()
+        self.img_size = self.train_loader.dataset.img_size
         # model
+        self.num_frames = args.num_frames
         self.loss_func = self.args.loss_func.strip()
         self.SpatialDeepSup = self.args.SpatialDeepSup
         self.training_rate = self.args.training_rate
         self.net_name = args.model.strip()
-        self.net = model_chose(self.net_name, self.loss_func, self.SpatialDeepSup)
+        self.in_channel = args.in_channel
+        self.num_classes = args.num_classes
+        self.net = model_chose(self.net_name, self.loss_func, self.SpatialDeepSup,in_channel=self.in_channel,num_classes=self.num_classes,num_frame=self.num_frames,img_size=self.img_size)
         torch.cuda.set_device(args.device)
         self.net = self.net.to(self.device)
         if args.DataParallel:
@@ -33,21 +40,15 @@ class MyExp():
         # Optimizer
         self.optimizer = optim.Adam(self.net.parameters(), lr=args.lrate, betas=(0.9, 0.99))
         self.scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5, last_epoch=-1)
-
         self.criterion = loss_chose(args)
         self.criterion2 = nn.BCELoss()
-        
-
         self.loss_list = []
         self.Gain = 100
         self.epoch_loss = 0
-        ########### data ############
-        self.dataset_name = self.args.dataset.strip()
-        self.train_path = self.args.DataPath + self.args.dataset + '/'
-        print(self.args.DataPath)
-        raise Exception("check datapath!")
-        self.test_path = self.train_path
-        self.resetloader()
+
+        # logger     
+        self.save_dir = os.path.join(self.args.saveDir,self.dataset_name)
+        self.log_dir = os.path.join(self.args.logsDir,self.dataset_name,self.args.model)
         ########### save ############
         self.ModelPath, self.ParameterPath, self.SavePath = self.generate_savepath( 0, 0)
         self.test_save = self.SavePath[0:-1] + '_visualization/'
@@ -61,20 +62,20 @@ class MyExp():
         if self.save_flag == 1 and not os.path.exists(self.test_save):
             os.mkdir(self.test_save)
     def generate_savepath(self,epoch, epoch_loss):
-
         timestamp = time.time()
         CurTime = time.strftime("%Y_%m_%d__%H_%M", time.localtime(timestamp))
-
-        SavePath = self.args.saveDir + self.args.model + '_SpatialDeepSup' + str(self.args.SpatialDeepSup) + '_' + self.args.loss_func + '/'
-        ModelPath = SavePath + 'net_' + str(epoch+1) + '_epoch_' + str(epoch_loss) + '_loss_' + CurTime + '.pth'
-        ParameterPath = SavePath + 'net_para_' + CurTime + '.pth'
-
+        Save_dir_name = self.net_name + '_SpatialDeepSup' + str(self.SpatialDeepSup) + '_' + self.loss_func + '/'
+        Weight_name = 'net_' + str(epoch+1) + '_epoch_' + str(epoch_loss) + '_loss_' + CurTime + '.pth'
+        SavePath = os.path.join(self.save_dir, Save_dir_name)
+        ModelPath = os.path.join(SavePath, Weight_name)
+        ParameterPath = os.path.join(SavePath, 'net_para_' + CurTime + '.pth')
         if not os.path.exists(self.args.saveDir):
-            os.mkdir(self.args.saveDir)
+            os.makedirs(self.args.saveDir)
         if not os.path.exists(SavePath):
-            os.mkdir(SavePath)
+            os.makedirs(SavePath)
 
         return ModelPath, ParameterPath, SavePath
+    
     def setloader(self):
         if self.args.dataset == 'NUDT-MIRSDT':
             train_dataset = MIRSDTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train',cache_type='disk',data_dir="dataset",cache_dir_name="MIRSDT",path_filename="train",use_cache=False)
@@ -83,7 +84,7 @@ class MyExp():
             train_dataset = IRDSTDataLoader(self.train_path, fullSupervision=self.args.fullySupervised,mode='train')
             val_dataset = IRDSTDataLoader(self.test_path, fullSupervision=self.args.fullySupervised,mode='test')
         else:
-            raise
+            raise Exception("Dataset not implemented!")
         train_loader = DataLoader(train_dataset, batch_size=self.args.batchsize, shuffle=True, drop_last=True)
         val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
         return train_loader,val_loader

@@ -9,7 +9,7 @@ from .seqsource import SeqSource
 from wrapper import CacheDataset,cache_read_img
 class IRDSTDataLoader(CacheDataset):
     def __init__(self, root,mode='train', fullSupervision=False,use_cache=True,cache_type="ram",num_frames=5):
-        txtpath = root + f'{mode}.txt'
+        txtpath = os.path.join(root, f'{mode}.txt')
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
         #读取train.txt文件
         self.seqs_arr = txt

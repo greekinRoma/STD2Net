@@ -19,10 +19,13 @@ def parse_args():
     parser.add_argument('--train',    type=int, default=1)
     parser.add_argument('--test',     type=int, default=1)
     parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
-
-    # train
+    # model parameters
     parser.add_argument('--model',     type=str, default='SDecNet',
                         help='ResUNet_DTUM, DNANet_DTUM, ACM, ALCNet, ResUNet, DNANet, ISNet, UIU')
+    parser.add_argument('--num_frames', type=int, default=5)
+    parser.add_argument('--in_channel', type=int, default=1)
+    parser.add_argument('--num_classes', type=int, default=1)
+    # training parameters
     parser.add_argument('--loss_func', type=str, default='fullySup',
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
     parser.add_argument('--fullySupervised', default=True)
