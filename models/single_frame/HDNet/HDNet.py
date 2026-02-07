@@ -6,7 +6,7 @@ import os
 from matplotlib import pyplot as plt
 import torch.fft
 import numpy as np
-from model.HDNet.MAC_Kernel import GenerateKernels, GenerateKernels3, GenerateKernels4
+from .MAC_Kernel import GenerateKernels, GenerateKernels3, GenerateKernels4
 os.environ['CUDA_VISIBLE_DEVICES']="0"
 
 kernels = GenerateKernels()
