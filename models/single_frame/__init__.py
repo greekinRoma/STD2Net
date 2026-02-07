@@ -18,7 +18,7 @@ from .MSHNet.MSHNet import MSHNet
 from .SDecNet.segmentation import SDecNet
 from .SCtransNet.SCTransNet import SCTransNet
 from .STBDNet.segmentation import STBDNet
-# from .HDNet.HDNet import HDNet
+from .HDNet.HDNet import HDNet
 from .DRPCANet.DRPCANet import DRPCANet
 from .RPCANet_plus.deepunfolding import RPCANet9
 from .RPCANet_plus.deepunfolding import RPCANet_LSTM
@@ -107,6 +107,10 @@ class SingleNet(nn.Module):
             self.model = build_sam_IRSAM(image_size=size)
         elif model_name == "SDecNet_orho":
             self.model = SDecNet_orho()
+        elif model_name == "HDNet":
+            self.model = HDNet(input_channels=in_channel, sueprvised=False)
+        else:
+            raise NotImplementedError(f'Network [{model_name}] is not found.')
     def forward(self, imgs, mode='train'):
         if self.model_name in ["RPCANet", "DRPCANet", "RPCANet_plus", "LRPCANet"]:
             return self.model(imgs, mode=mode)
@@ -120,10 +124,10 @@ class SingleNet(nn.Module):
                 batched_input.append(dict_input)
             if mode == "train":
                 masks, edges = self.model(batched_input)
-                return edges.sigmoid(), masks.sigmoid()
+                return edges, masks
             else:
                 masks, edges = self.model(batched_input)
-                return masks.sigmoid()
+                return masks
         else:
             return self.model(imgs)
 

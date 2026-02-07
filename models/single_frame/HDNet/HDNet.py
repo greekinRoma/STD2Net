@@ -198,12 +198,12 @@ class DHPF(nn.Module):
         return ideal_high_pass 
 
 class HDNet(nn.Module):
-    def __init__(self, input_channels, block=ResNet):
+    def __init__(self, input_channels, block=ResNet, sueprvised=False):
         super(HDNet, self).__init__()
         param_channels = [16, 32, 64, 128, 256]
         param_blocks = [2, 2, 2, 2]
         energy = [0.1, 0.2, 0.4, 0.8]
-
+        self.supervised = sueprvised    
         self.pool = nn.MaxPool2d(2, 2)
         self.sigmoid = nn.Sigmoid()
         self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
@@ -272,7 +272,7 @@ class HDNet(nn.Module):
         mask2 = self.output_2(x_d2)
         mask3 = self.output_3(x_d3)
         
-        if warm_flag:
+        if self.supervised:
             x_py_init = self.py_init(x)
             x_py_v3 = x_py_init * self.sigmoid(self.up_8(mask3)) + x_py_init 
             x_py_v3 = self.py3(x_py_v3)
@@ -284,7 +284,7 @@ class HDNet(nn.Module):
             x_py_v1 = self.py1(x_py_v1)
 
             x_py_v0 = x_py_v1 * self.sigmoid(mask0) + x_py_v1 
-            x_py_v0 = self.sigmoid(self.py0(x_py_v0))
+            x_py_v0 = self.py0(x_py_v0)
 
             output = self.final(torch.cat([mask0, self.up(mask1), self.up_4(mask2), self.up_8(mask3)], dim=1))
             output = output * x_py_v0 + output
@@ -293,4 +293,4 @@ class HDNet(nn.Module):
         else:
             output = self.output_0(x_d0)
             output = output
-            return output.sigmoid()
+            return output
