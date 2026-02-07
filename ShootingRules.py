@@ -24,7 +24,7 @@ class ShootingRules(nn.Module):
 
         for i_batch in range(output_np.shape[0]):
             output_one = output_np[i_batch,-1,:,:]
-            target_one = target_np[i_batch,0,:,:]
+            target_one = target_np[i_batch,-1,:,:]
             # mixdata_one = mixdata_np[i_batch, 0, :, :]
 
             '''

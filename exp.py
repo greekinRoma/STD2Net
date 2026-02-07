@@ -42,7 +42,10 @@ class MyExp():
         self.Gain = 100
         self.epoch_loss = 0
         ########### data ############
+        self.dataset_name = self.args.dataset.strip()
         self.train_path = self.args.DataPath + self.args.dataset + '/'
+        print(self.args.DataPath)
+        raise Exception("check datapath!")
         self.test_path = self.train_path
         self.resetloader()
         ########### save ############
