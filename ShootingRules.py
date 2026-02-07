@@ -20,9 +20,11 @@ class ShootingRules(nn.Module):
         TrueNum=0 #True number
         TgtNum = 0
         # DetectTh=0.5 #The detecting threshold used in output
+
+
         for i_batch in range(output_np.shape[0]):
             output_one = output_np[i_batch,-1,:,:]
-            target_one = target_np[i_batch,-1,:,:]
+            target_one = target_np[i_batch,0,:,:]
             # mixdata_one = mixdata_np[i_batch, 0, :, :]
 
             '''
@@ -60,8 +62,6 @@ class ShootingRules(nn.Module):
 
             False_output_one = output_one*Box2_map
             FalseNum += np.count_nonzero(False_output_one)
+
+
         return  FalseNum, TrueNum, TgtNum
-
-
-
-
