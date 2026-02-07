@@ -9,7 +9,7 @@ from .seqsource import SeqSource
 from wrapper import CacheDataset,cache_read_img
 class MIRSDTDataLoader(CacheDataset):
     def __init__(self, root,mode='train', fullSupervision=False,use_cache=True,cache_type="ram",num_frames=5,data_dir="dataset",cache_dir_name="mirsdt_cache",path_filename=None):
-        txtpath = root + f'{mode}.txt'
+        txtpath = os.path.join(root, path_filename + '.txt')
         txt = np.loadtxt(txtpath, dtype=bytes).astype(str)
         #读取train.txt文件
         self.seqs_arr = txt
