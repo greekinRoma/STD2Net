@@ -65,7 +65,7 @@ class ResNet(nn.Module):
         return out
 
 class MSHNet(nn.Module):
-    def __init__(self, input_channels, block=ResNet):
+    def __init__(self, input_channels,num_classes, block=ResNet):
         super().__init__()
         param_channels = [16, 32, 64, 128, 256]
         param_blocks = [2, 2, 2, 2]
@@ -89,7 +89,7 @@ class MSHNet(nn.Module):
         self.decoder_1 = self._make_layer(param_channels[1]+param_channels[2], param_channels[1], block, param_blocks[0])
         self.decoder_0 = self._make_layer(param_channels[0]+param_channels[1], param_channels[0], block)
 
-        self.output_0 = nn.Conv2d(param_channels[0], 1, 1)
+        self.output_0 = nn.Conv2d(param_channels[0], num_classes, 1)
         self.output_1 = nn.Conv2d(param_channels[1], 1, 1)
         self.output_2 = nn.Conv2d(param_channels[2], 1, 1)
         self.output_3 = nn.Conv2d(param_channels[3], 1, 1)

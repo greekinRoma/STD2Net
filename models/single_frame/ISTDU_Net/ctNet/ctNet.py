@@ -9,6 +9,7 @@ from .resnet2020 import ResNet, Bottleneck, ResNetCt, BottleneckMode
 
 class Down(nn.Module):
     def __init__(self,
+                 inp_chan=1,
                  inp_num = 1,
                  layers=[1, 2, 4, 8],
                  channels=[8, 16, 32, 64],
@@ -23,8 +24,8 @@ class Down(nn.Module):
         # stemWidth = int(channels[0])
         stemWidth = int(8)
         self.stem = nn.Sequential(
-            normLayer(1, affine=False),
-            nn.Conv2d(1, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
+            normLayer(inp_chan, affine=False),
+            nn.Conv2d(inp_chan, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
             normLayer(stemWidth*2),
             activate()
         )
@@ -134,8 +135,9 @@ class EDN(nn.Module):
         return [x1, x2, x3, x4]
 
 class ISTDU_Net(miNet):
-    def __init__(self, num_classes=1):
+    def __init__(self, num_classes=1,input_channel=1):
         super(ISTDU_Net, self).__init__()
+        
         self.encoder = None
         self.decoder = None
 
@@ -143,7 +145,7 @@ class ISTDU_Net(miNet):
         #
         # self.up = UPCt(channels=[256,128,64,32])
 
-        self.down = Down(channels=[16, 32, 64, 128])
+        self.down = Down(inp_chan=input_channel,channels=[16, 32, 64, 128])
         # self.up = lambda x:x
         # self.up = UP(num_classes=num_classes, s=0.125)
         self.up = UPCt(channels=[512, 256,128,64])
@@ -151,10 +153,11 @@ class ISTDU_Net(miNet):
         # self.head = Head(inpChannel=32, oupChannel=1)
         # self.headDet = Head(inpChannel=64, oupChannel=1)
 
-        self.headSeg = Head(inpChannel=64, oupChannel=1)
+        self.headSeg = Head(inpChannel=64, oupChannel=num_classes)
         # self.DN = DN()
         self.DN = EDN(channels=[64, 128, 256, 512])
 
+        
     def funIndividual(self, x):
         x1 = self.down(x)
         return x1

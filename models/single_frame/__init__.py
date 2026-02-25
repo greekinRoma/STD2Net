@@ -55,9 +55,9 @@ class SingleNet(nn.Module):
             self.is_alg = True
         elif model_name == 'DNANet':
             if mode == 'train':
-                self.model = DNANet(mode='train',deep_supervision=False)
+                self.model = DNANet(mode='train',deep_supervision=False,num_classes=num_classes,input_channels=in_channel)
             else:
-                self.model = DNANet(mode='test',deep_supervision=False)
+                self.model = DNANet(mode='test',deep_supervision=False,num_classes=num_classes,input_channels=in_channel)
         elif model_name == 'ACM':
             self.model = ACM()
         elif model_name == 'ALCNet':
@@ -70,21 +70,19 @@ class SingleNet(nn.Module):
             else:
                 self.model = UIUNet(mode='test',supervised=False)
         elif model_name == 'ISTDU-Net':
-            self.model = ISTDU_Net()
+            self.model = ISTDU_Net(num_classes=num_classes,input_channel=in_channel)
         elif model_name == 'RDIAN':
             self.model = RDIAN()
-        elif model_name == 'ISTDU_Net':
-            self.model = ISTDU_Net()
         elif model_name == 'DATransNet':
             self.model = DATransNet(img_size=size)
         elif model_name == 'SDiffFormer':
             self.model = SDiffFormer(img_size=size)
         elif model_name == 'res_UNet':
-            self.model = res_UNet()
+            self.model = res_UNet(num_classes=num_classes,input_channels=in_channel)
         elif model_name == 'L2SKNet':
-            self.model = L2SKNet_UNet()
+            self.model = L2SKNet_UNet(out_ch=num_classes,in_ch=in_channel)
         elif model_name == 'MSHNet':
-            self.model = MSHNet(input_channels=1)
+            self.model = MSHNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':
             self.model = SDecNet(is_multi_frames=is_multi_frames, n_channels=self.in_channel, n_classes=self.num_classes, img_size=size)
         elif model_name == 'SCTransNet':

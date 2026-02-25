@@ -25,7 +25,6 @@ class DTUMNet(nn.Module):
                 x_t = torch.unsqueeze(x_t, 2)
                 Features = torch.cat([x_t, Features], 2)
         X_Out = self.DTUM(Features)
-
         Old_Feat = Features[:,:,1:,:,:]
 
         return X_Out, Old_Feat
