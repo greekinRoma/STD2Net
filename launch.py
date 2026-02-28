@@ -30,7 +30,7 @@ def parse_args():
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
     parser.add_argument('--fullySupervised', default=True)
     parser.add_argument('--SpatialDeepSup',  default=False)
-    parser.add_argument('--batchsize', type=int,   default=4)
+    parser.add_argument('--batchsize', type=int,   default=2)
     parser.add_argument('--epochs',    type=int,   default=20)
     parser.add_argument('--evalepoch',type=int, default=1)
     parser.add_argument('--lrate',     type=float, default=0.001)
