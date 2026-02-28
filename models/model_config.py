@@ -3,7 +3,7 @@ from .single_frame import SingleNet
 from .DTUM import DTUMNet
 from .RFR.RFR_framework import RFR
 from .STDecNet.STDecNet import STDecNet
-from .DQAligner import DQAligner
+from .DQAligner.DQAligner import DQAligner
 def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num_classes = 1,num_frame=5,img_size=(256,256)):
     model_name = model_name.strip()
     if 'DTUM' in model_name:
@@ -14,16 +14,16 @@ def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num
     elif 'RFR' in model_name:
         model_name = model_name[4:]
         net = RFR(head_name=model_name,num_classes=num_classes,image_size=img_size,mid_channels=16)
+    elif model_name == 'DQAligner':
+        net = DQAligner(input_channels=1, num_frames=5, train_mode=True, key_mode='last')
     elif model_name == "STDecNet":
         net = STDecNet(mid_channel=32,num_frame=num_frame)
-    elif model_name == "DQAligner":
-        net = DQAligner(input_channels=1, num_frames=5, train_mode=True, key_mode='last')
     else:
         net = SingleNet(model_name=model_name,in_channel=in_channel,num_classes=num_classes,is_multi_frames=False,image_size=img_size)
     return net
 
 
-def run_model(net, model, SeqData, Old_Feat, OldFlag):  
+def run_model(net, model, SeqData, Old_Feat, OldFlag, ds_flag=False):  
     if 'DTUM' in model:
         outputs = net(SeqData, Old_Feat, OldFlag)
     elif 'RFR' in model:
@@ -31,6 +31,8 @@ def run_model(net, model, SeqData, Old_Feat, OldFlag):
         outputs = net(input)
     elif model == "STDecNet":
         outputs = net(SeqData)
+    elif model == "DQAligner":
+        outputs = net(SeqData, None, 0, ds_flag)
     else:
         input = SeqData[:, :, -1, :, :]
         outputs = net(input)

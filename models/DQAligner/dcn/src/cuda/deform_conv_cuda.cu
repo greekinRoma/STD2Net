@@ -87,7 +87,7 @@ deform_conv_cuda_forward(const at::Tensor &input,
     for (int n = 0; n < batch/im2col_step_; ++n)
     {
         auto columns = at::empty({channels * kernel_h * kernel_w, batch_n * height_out * width_out}, input.options());
-        AT_DISPATCH_FLOATING_TYPES(input.type(), "deform_conv_forward_cuda", ([&] {
+        AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "deform_conv_forward_cuda", ([&] {
             deformable_im2col_cuda(at::cuda::getCurrentCUDAStream(),
                                              input.data<scalar_t>() + n * im2col_step_ * per_input_size,
                                              offset.data<scalar_t>() + n * im2col_step_ * per_offset_size,
@@ -216,7 +216,7 @@ std::vector<at::Tensor> deform_conv_cuda_backward(const at::Tensor &input,
             columns_g.select(0, g) = at::mm(weight_gm, grad_output_gm);
         }
 
-        AT_DISPATCH_FLOATING_TYPES(input.type(), "deform_conv_backward_cuda", ([&] {
+        AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "deform_conv_backward_cuda", ([&] {
             deformable_col2im_coord_cuda(at::cuda::getCurrentCUDAStream(),
                                                    columns.data<scalar_t>(),
                                                    input.data<scalar_t>() + n * im2col_step_ * per_input_size,

@@ -71,6 +71,19 @@ class Trainer(object):
             outputs = run_model(self.net, args.model, SeqData.float(), 0, 0)
             if "RFR" in args.model:
                 loss = self.criterion(outputs,TgtData.float())
+            elif args.model == "DQAligner":
+                deep_mask = outputs[0]
+                pred = outputs[1].squeeze(2)  # 融合关键帧特征 b,c,h,w
+                if args.SpatialDeepSup:
+                    loss = loss + self.criterion(pred, TgtData.float())
+                    for j in range(len(deep_mask)):
+                        if j > 0:
+                            TgtData = torch.functional.interpolate(TgtData, scale_factor=0.5, mode='nearest')
+                        loss = loss + self.criterion(deep_mask[j].squeeze(2),
+                                                    TgtData.float())  # , self.warm_epoch, epoch
+                    loss = loss / (len(deep_mask) + 1)
+                else:
+                    loss = self.criterion(pred, TgtData.float())
             else:
                 TgtData = TgtData[:,:,-1:]
                 if isinstance(outputs, list):
@@ -90,6 +103,8 @@ class Trainer(object):
                 else:
                     loss = self.criterion(outputs, TgtData.float())
             loss.backward()
+            if args.model == 'DQAligner':
+                 torch.nn.utils.clip_grad_norm_(self.net.parameters(), max_norm=1.0)
             self.optimizer.step()
             running_loss += loss.item()
             if epoch == 0 and (i + 1) % 50 == 0:
@@ -100,8 +115,10 @@ class Trainer(object):
         print('model: %s, epoch: %d, loss: %.10f' % (args.model + args.loss_func, epoch + 1, self.epoch_loss))
         ########################################
         self.scheduler.step()
-        # if optimizer.state_dict()['param_groups'][0]['lr'] < args.lrate_min:
-        #     optimizer.state_dict()['param_groups'][0]['lr'] = args.lrate_min
+        lr = self.optimizer.param_groups[0]['lr']
+        if lr < self.args.lrate_min:
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = self.args.lrate_min
 
         self.loss_list.append(self.epoch_loss)
 

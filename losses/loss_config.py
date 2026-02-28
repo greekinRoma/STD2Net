@@ -4,7 +4,7 @@ import torch.nn as nn
 from .loss_fullySupervised import Focal_Loss, SoftIoULoss, SoftLoULoss1, muti_bce_loss_fusion, muti_SoftLoULoss1_fusion
 from .loss_OHEM import MyWeightTopKLoss_Absolutly
 from .loss_BCETopKLoss import MyWeightBCETopKLoss
-
+from losses.utils import *
 
 
 def loss_chose(args):
@@ -28,6 +28,7 @@ def loss_chose(args):
                                      ProtectedArea=args.ProtectedArea)
     else:
         raise('An unexpected loss function!')
-
+    if args.model == "DQAligner":
+        cirterion = AdaFocalLoss()
     return cirterion
 

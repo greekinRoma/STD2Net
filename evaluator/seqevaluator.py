@@ -46,11 +46,14 @@ class SeqEvaluator():
                 SeqData_t, TgtData_t, m, n = data
                 SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)
                 outputs = run_model(model, self.model_name, SeqData, Old_Feat, OldFlag)
-                if isinstance(outputs, list):
-                    outputs = outputs[0]
-                if isinstance(outputs, tuple):
-                    Old_Feat = outputs[1]
-                    outputs = outputs[0]
+                if self.model_name == "DQAligner":
+                    outputs = outputs[1]
+                else:
+                    if isinstance(outputs, list):
+                        outputs = outputs[0]
+                    if isinstance(outputs, tuple):
+                        Old_Feat = outputs[1]
+                        outputs = outputs[0]
                 outputs = torch.squeeze(outputs,1)
                 TgtData = torch.squeeze(TgtData,1)
                 output=outputs[:,-1,:m,:n]
@@ -104,11 +107,14 @@ class SeqEvaluator():
                 SeqData_t, TgtData_t, m, n = data
                 SeqData, TgtData = Variable(SeqData_t).to(self.device), Variable(TgtData_t).to(self.device)
                 outputs = run_model(model, self.model_name, SeqData, Old_Feat, OldFlag)
-                if isinstance(outputs, list):
-                    outputs = outputs[0]
-                if isinstance(outputs, tuple):
-                    Old_Feat = outputs[1]
-                    outputs = outputs[0]
+                if self.model_name == "DQAligner":
+                    outputs = outputs[1]
+                else:
+                    if isinstance(outputs, list):
+                        outputs = outputs[0]
+                    if isinstance(outputs, tuple):
+                        Old_Feat = outputs[1]
+                        outputs = outputs[0]
                 outputs = torch.squeeze(outputs, 1)
                 TgtData = torch.squeeze(TgtData,1)
                 output=outputs[:,-1,:m,:n]

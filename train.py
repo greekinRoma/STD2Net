@@ -186,6 +186,9 @@ class Trainer(object):
                     else:
                         for output in outputs:
                             loss += self.criterion(output, TgtData.float())
+            elif 'DQAligner' == args.model:
+                pred = outputs
+                loss = self.criterion(pred, TgtData.float())
             else:
                 loss = self.criterion(outputs, TgtData.float())
 
