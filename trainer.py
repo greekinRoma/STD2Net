@@ -83,7 +83,7 @@ class Trainer(object):
                                                     TgtData.float())  # , self.warm_epoch, epoch
                     loss = loss / (len(deep_mask) + 1)
                 else:
-                    loss = self.criterion(pred, TgtData.float())
+                    loss = self.criterion(pred, TgtData[:,:,-1].float())
             else:
                 TgtData = TgtData[:,:,-1:]
                 if isinstance(outputs, list):
