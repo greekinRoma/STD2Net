@@ -74,7 +74,7 @@ if __name__ == '__main__':
             args.dataset = data_name
             myexp = MyExp(args)
             model_weights = torch.load(pth_path,weights_only=True)
-            model = myexp.get_net()
+            model = myexp.get_net().eval()
             model.load_state_dict(model_weights)
             val_loader = myexp.get_valloader()
             device = myexp.get_device()

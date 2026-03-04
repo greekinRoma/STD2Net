@@ -1,0 +1,43 @@
+ninja_required_version = 1.3
+cxx = c++
+nvcc = /usr/local/cuda-12.8/bin/nvcc
+
+cflags = -pthread -B /home/greekinroma/miniconda3/envs/rfr/compiler_compat -fno-strict-overflow -Wsign-compare -DNDEBUG -O2 -Wall -fPIC -O2 -isystem /home/greekinroma/miniconda3/envs/rfr/include -fPIC -O2 -isystem /home/greekinroma/miniconda3/envs/rfr/include -fPIC -DWITH_CUDA -I/home/greekinroma/project/STD2Net/models/RFR/dcn/src -I/home/greekinroma/miniconda3/envs/rfr/lib/python3.14/site-packages/torch/include -I/home/greekinroma/miniconda3/envs/rfr/lib/python3.14/site-packages/torch/include/torch/csrc/api/include -I/usr/local/cuda-12.8/include -I/home/greekinroma/miniconda3/envs/rfr/include/python3.14 -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=DCN2 -std=c++17
+cuda_cflags = -DWITH_CUDA -I/home/greekinroma/project/STD2Net/models/RFR/dcn/src -I/home/greekinroma/miniconda3/envs/rfr/lib/python3.14/site-packages/torch/include -I/home/greekinroma/miniconda3/envs/rfr/lib/python3.14/site-packages/torch/include/torch/csrc/api/include -I/usr/local/cuda-12.8/include -I/home/greekinroma/miniconda3/envs/rfr/include/python3.14 -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=DCN2 -gencode=arch=compute_120,code=compute_120 -gencode=arch=compute_120,code=sm_120 -std=c++17
+cuda_dlink_post_cflags = 
+sycl_dlink_post_cflags = 
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  depfile = $out.d
+  deps = gcc
+  command = $nvcc --generate-dependencies-with-compile --dependency-output $out.d $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+
+
+
+
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_cpu.o: compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_cpu.cpp
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_psroi_pooling_cpu.o: compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_psroi_pooling_cpu.cpp
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/modulated_deform_cpu.o: compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/modulated_deform_cpu.cpp
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_conv_cuda.o: cuda_compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_conv_cuda.cu
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_psroi_pooling_cuda.o: cuda_compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_psroi_pooling_cuda.cu
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/modulated_deform_conv_cuda.o: cuda_compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/modulated_deform_conv_cuda.cu
+build /home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/vision.o: compile /home/greekinroma/project/STD2Net/models/RFR/dcn/src/vision.cpp
+
+
+
+
+
+
+
+

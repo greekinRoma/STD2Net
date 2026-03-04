@@ -1,0 +1,8 @@
+# ninja log v7
+0	3099	1772610957174742026	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_cpu.o	a361daa9cd909b78
+0	3107	1772610957175683619	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/deform_psroi_pooling_cpu.o	bc4c93252068d03a
+1	3185	1772610957175742040	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cpu/modulated_deform_cpu.o	ad0ebee53076a0ac
+1	10017	1772610957176553758	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/vision.o	568d1ea354a6be7f
+1	11436	1772610957176214862	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_psroi_pooling_cuda.o	9dabee6b451a98ae
+1	11458	1772610957176411940	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/modulated_deform_conv_cuda.o	44a3daad0be2be7e
+1	11504	1772610957176017008	/home/greekinroma/project/STD2Net/models/RFR/dcn/build/temp.linux-x86_64-cpython-314/home/greekinroma/project/STD2Net/models/RFR/dcn/src/cuda/deform_conv_cuda.o	5ad9026fc2cd706e
