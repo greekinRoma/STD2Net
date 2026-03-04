@@ -147,16 +147,16 @@ class Trainer(object):
         scio.savemat(LossMatSavePath, mdict={'loss_list': self.loss_list})
 
         ############plot
-        x1 = range(self.args.epochs)
-        y1 = self.loss_list
-        fig = plt.figure()
-        plt.plot(x1, y1, '.-')
-        plt.xlabel('epoch')
-        plt.ylabel('train loss')
-        LossJPGSavePath = self.SavePath + 'train_loss_' + CurTime + '.jpg'
-        plt.savefig(LossJPGSavePath)
-        # plt.show()
-        print('finished Show!')
+        # x1 = range(self.args.epochs)
+        # y1 = self.loss_list
+        # fig = plt.figure()
+        # plt.plot(x1, y1, '.-')
+        # plt.xlabel('epoch')
+        # plt.ylabel('train loss')
+        # LossJPGSavePath = self.SavePath + 'train_loss_' + CurTime + '.jpg'
+        # plt.savefig(LossJPGSavePath)
+        # # plt.show()
+        # print('finished Show!')
         
     def generate_savepath(self,args, epoch, epoch_loss):
 

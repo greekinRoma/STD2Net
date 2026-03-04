@@ -84,7 +84,7 @@ class SingleNet(nn.Module):
         elif model_name == 'MSHNet':
             self.model = MSHNet(input_channels=in_channel,num_classes=num_classes)
         elif model_name == 'SDecNet':
-            self.model = SDecNet(is_multi_frames=is_multi_frames, n_channels=self.in_channel, n_classes=self.num_classes, img_size=size)
+            self.model = SDecNet(n_channels=self.in_channel, n_classes=self.num_classes, img_size=size)
         elif model_name == 'SCTransNet':
             self.model = SCTransNet()
         elif model_name == "RPCANet":

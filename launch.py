@@ -9,7 +9,7 @@ def parse_args():
     """Training Options for Segmentation Experiments"""
     parser = argparse.ArgumentParser(description='Infrared_target_detection_overall')
     parser.add_argument('--DataPath',  type=str, default='./dataset/', help='Dataset path [default: ./dataset/]')
-    parser.add_argument('--dataset',   type=str, default='IRDST', help='Dataset name [dafult: NUDT-MIRSDT]')
+    parser.add_argument('--dataset',   type=str, default='NUDT-MIRSDT', help='Dataset name [dafult: NUDT-MIRSDT]')
     parser.add_argument('--align',  default='False', action='store_true', help='align input frames')
     parser.add_argument('--training_rate', type=int, default=1, help='Rate of samples in training (1/n) [default: 1]')
     parser.add_argument('--saveDir',   type=str, default='./results/',
@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument('--test',     type=int, default=1)
     parser.add_argument('--pth_path', type=str, default='.', help='Trained model path')
     # model parameters
-    parser.add_argument('--model',     type=str, default='SDecNet',
+    parser.add_argument('--model',     type=str, default="RFR+MSHNet",
                         help='ResUNet_DTUM, DNANet_DTUM, ACM, ALCNet, ResUNet, DNANet, ISNet, UIU')
     parser.add_argument('--num_frames', type=int, default=5)
     parser.add_argument('--in_channel', type=int, default=1)
@@ -30,11 +30,11 @@ def parse_args():
                         help='HPM, FocalLoss, OHEM, fullySup, fullySup1(ISNet), fullySup2(UIU)')
     parser.add_argument('--fullySupervised', default=True)
     parser.add_argument('--SpatialDeepSup',  default=False)
-    parser.add_argument('--batchsize', type=int,   default=2)
+    parser.add_argument('--batchsize', type=int,   default=4)
     parser.add_argument('--epochs',    type=int,   default=20)
     parser.add_argument('--evalepoch',type=int, default=1)
     parser.add_argument('--lrate',     type=float, default=0.001)
-    # parser.add_argument('--lrate_min', type=float, default=1e-5)
+    parser.add_argument('--lrate_min', type=float, default=1e-5)
     # loss
     parser.add_argument('--MyWgt',     default=[0.1667, 0.8333], help='Weights of positive and negative samples')
     parser.add_argument('--MaxClutterNum', type=int, default=39, help='Clutter samples in loss [default: 39]')

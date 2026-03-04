@@ -144,10 +144,9 @@ class SeqEvaluator():
         mIoU = self.get_mIou()
         return mIoU,Auc,Pd,Fa,Pds,Fas
     def refresh_result(self,model_name,pth_path,SpatialDeepSup=True):
-        model_weights = torch.load(pth_path,self.device,weights_only=True)
+        model_weights = torch.load(pth_path)
         model = model_chose(model_name,loss_func=None,SpatialDeepSup=SpatialDeepSup)
-        model = torch.nn.DataParallel(model,device_ids=[1,2])
-        model.to(self.device)
+        model.to(self.device) 
         model.load_state_dict(model_weights)
         mIoU,Auc,Pd,Fa,Pds,Fas = self.get_final_result(model)
         return mIoU,Auc,Pd,Fa,Pds,Fas

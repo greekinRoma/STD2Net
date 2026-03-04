@@ -23,7 +23,7 @@ def model_chose(model_name, loss_func=None, SpatialDeepSup=None,in_channel=1,num
     return net
 
 
-def run_model(net, model, SeqData, Old_Feat, OldFlag, ds_flag=False):  
+def run_model(net, model, SeqData, Old_Feat, OldFlag=False, ds_flag=False):  
     if 'DTUM' in model:
         outputs = net(SeqData, Old_Feat, OldFlag)
     elif 'RFR' in model:

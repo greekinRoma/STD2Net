@@ -92,3 +92,11 @@ class MyExp():
         self.train_loader,self.val_loader = self.setloader()
     def resetloger(self):
         return Logger(self.log_dir,self.SavePath)
+    def get_net(self):
+        return self.net
+    def get_valloader(self):
+        return self.val_loader
+    def get_trainloader(self):
+        return self.train_loader
+    def get_device(self):
+        return self.device
