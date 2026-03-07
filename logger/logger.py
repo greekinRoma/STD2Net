@@ -61,6 +61,6 @@ class Logger():
         log_text = f'Final Epoch:mIou:{mIou*100:.2f},Pd:{Pd*100:.2f},Fa:{Fa*1000000:.2f},AUC:{AUC*100:.2f}'
         self.write_line(log_text)
         self.save_model(model=self.best_model,path=os.path.join(self.savedir,"best.pth"))
-        plt.plot(Pds,Fas)
-        plt.savefig(os.path.join(self.savedir,'ROC.png'))
-        shutil.copy(self.log_txt,self.sav_txt)
+        # plt.plot(Pds,Fas)
+        # plt.savefig(os.path.join(self.savedir,'ROC.png'))
+        # shutil.copy(self.log_txt,self.sav_txt)

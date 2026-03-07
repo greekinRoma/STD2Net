@@ -21,19 +21,17 @@ class SD2M(nn.Module):
         delta2=delta1[:,:,::-1,::-1].copy()
         kernel=np.concatenate([delta1,delta2],axis=0)
         self.kernel = torch.from_numpy(kernel).float().cuda()
-        self.kernels = self.kernel.repeat(self.hidden_channels,1,1,1)
-        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
-                                      nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.in_channels,kernel_size=1,stride=1))
         self.basis_convs = nn.ModuleList()
         self.origin_convs = nn.ModuleList()
         self.num_layer = 8
+        self.kernels = self.kernel.repeat(self.hidden_channels,1,1,1)
         self.down_layer = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
                                         nn.BatchNorm2d(self.hidden_channels))
         self.origin_conv = nn.Sequential(nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
-                                         nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1),
-                                         nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1))
-        self.max_pool = nn.MaxPool2d(kernel_size=7,stride=1,padding=3)
-        self.avg_pool = nn.AvgPool2d(kernel_size=7,stride=1,padding=3)
+                                         nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1))   
+        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.hidden_channels,out_channels=self.in_channels,kernel_size=1,stride=1))
+        self.max_pool = nn.MaxPool2d(kernel_size=11,stride=1,padding=5)
+        self.avg_pool = nn.AvgPool2d(kernel_size=11,stride=1,padding=5)
     def Extract_layer(self,cen,b,w,h):
         basises = [(self.max_pool(cen)-self.avg_pool(cen)).view(b,self.hidden_channels,1,-1),(cen - torch.mean(cen,dim=[2,3],keepdim=True)).view(b,self.hidden_channels,1,-1)]
         for i in range(len(self.shifts)):

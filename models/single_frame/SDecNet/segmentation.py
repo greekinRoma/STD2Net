@@ -3,7 +3,7 @@ import torch.nn as nn
 from .FDecM.SDecM import SD2M
 from .FDecM.SDecD import SD2D
 from .AttentionModule import *
-from .UIU_module.model_UIUNet import *
+from .UNet_module.model_UIUNet import *
 def get_activation(activation_type):
     activation_type = activation_type.lower()
     if hasattr(nn, activation_type):

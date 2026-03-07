@@ -68,7 +68,8 @@ if __name__ == '__main__':
     result_dir = 'result_images'
     os.makedirs(result_dir, exist_ok=True)
     log_dir = 'logs'
-    
+    parameter_path = f'{result_dir}/parameter.txt'
+    f = open(parameter_path,'w')
     # 存储所有模型的性能数据
     performance_registry = []
 
@@ -108,7 +109,8 @@ if __name__ == '__main__':
             print(f"Model: {model_name} | Dataset: {data_name}")
             print(f"Params: {p:.3f} M | GFLOPS: {g:.3f} | FPS: {f:.2f}")
             print(f"{'='*40}")
-            
+            file = open(parameter_path,'a')
+            file.write(f"{model_name} {data_name} {(H,W)} & {p:.2f} & {g:.2f} & {f:.2f}\n")
             performance_registry.append({
                 "Model": model_name,
                 "size":(H,W),
@@ -116,3 +118,5 @@ if __name__ == '__main__':
                 "GFLOPS": g,
                 "FPS": f
             })
+            file.close()
+    

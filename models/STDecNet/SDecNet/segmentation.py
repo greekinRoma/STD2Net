@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
-from .FDecM.SDecM import SDecM
+from .FDecM.SDecM import SD2M
+from .FDecM.SDecD import SD2D
 from .AttentionModule import *
 from .UNet_module.model_UIUNet import *
-from .Pool.InceptionPool import InceptionPool as down_layer
 def get_activation(activation_type):
     activation_type = activation_type.lower()
     if hasattr(nn, activation_type):
@@ -94,19 +94,19 @@ class SDecNet(nn.Module):
         in_channels = 8
         block = Res_block
         self.inc = RSU7(n_channels,in_channels,in_channels*2,dilation_ratio=1)
-        self.down1 = down_layer(in_channel=in_channels*2,out_channel=in_channels*2)
+        self.down1 = SD2D(dim=in_channels*2)
         self.encoder1 = self._make_layer(block, in_channels * 2, in_channels * 2, 1) 
-        self.down2 = down_layer(in_channel=in_channels*2,out_channel=in_channels*2)
+        self.down2 = SD2D(dim=in_channels*2)
         self.encoder2 = self._make_layer(block, in_channels * 2, in_channels * 4, 1) 
-        self.down3 = down_layer(in_channel=in_channels*4,out_channel=in_channels*4)
+        self.down3 = SD2D(dim=in_channels*4)
         self.encoder3 = self._make_layer(block, in_channels * 4, in_channels * 8, 1)  
-        self.down4 = down_layer(in_channel=in_channels*8,out_channel=in_channels*8)
+        self.down4 = SD2D(dim=in_channels*8)
         self.encoder4 = self._make_layer(block, in_channels * 8,  in_channels * 8, 1)  
 
-        self.contras1 = SDecM(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=2,shifts=[1,3])
-        self.contras2 = SDecM(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=4,shifts=[1,3])
-        self.contras3 = SDecM(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=8,shifts=[1,3])
-        self.contras4 = SDecM(in_channels=in_channels*8,out_channels=in_channels*8,kernel_size=16,shifts=[1,3])
+        self.contras1 = SD2M(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=2,shifts=[1,2,3])
+        self.contras2 = SD2M(in_channels=in_channels*2,out_channels=in_channels*2,kernel_size=2,shifts=[1,2,3])
+        self.contras3 = SD2M(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=4,shifts=[1,2,3])
+        self.contras4 = SD2M(in_channels=in_channels*8,out_channels=in_channels*8,kernel_size=8,shifts=[1,2,3])
         
         self.decoder4 = UpBlock_attention(in_channels * 16, in_channels * 4, nb_Conv=2)
         self.decoder3 = UpBlock_attention(in_channels * 8, in_channels * 2, nb_Conv=2)
