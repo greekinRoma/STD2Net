@@ -6,12 +6,14 @@ from exp import MyExp
 import shutil
 if __name__ == '__main__':
     args = parse_args()
-    model_name = "RFR+MSHNet"
+    model_name = "DTUM+res_UNet"
+    dataset_name = 'IRDST'
+    args.dataset = dataset_name
     args.model = model_name
     myexp = MyExp(args)
     evaluator = myexp.evaluator
     result_dir = './results'
-    dataset_name = 'NUDT-MIRSDT'
+    
     pth_file_path = os.path.join(f'./logs/{dataset_name}',model_name, 'best.pth')
     txt_file_path = os.path.join(f'./logs/{dataset_name}',model_name, 'log.txt')
     mIoU,Auc,Pd,Fa,Pds,Fas=evaluator.refresh_result(model_name=model_name,pth_path=pth_file_path,SpatialDeepSup=args.SpatialDeepSup)

@@ -112,8 +112,7 @@ class SDecNet(nn.Module):
         self.decoder3 = UpBlock_attention(in_channels * 8, in_channels * 2, nb_Conv=2)
         self.decoder2 = UpBlock_attention(in_channels * 4, in_channels*2, nb_Conv=2)
         self.decoder1 = UpBlock_attention(in_channels * 4, in_channels*2, nb_Conv=2)
-        self.outc = nn.Sequential(RSU7(in_channels*2,in_channels,in_channels,dilation_ratio=1),
-                                  Head(inpChannel=in_channels,oupChannel=n_classes))
+        self.outc = nn.Sequential(RSU7(in_channels*2,in_channels,n_classes,dilation_ratio=1))
     def _make_layer(self, block, input_channels, output_channels, num_blocks=1):
         layers = []
         layers.append(block(input_channels, output_channels))
